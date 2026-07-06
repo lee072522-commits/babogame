@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>바보타임 — 송출 화면</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Noto+Serif+KR:wght@700;900&display=swap');
+:root{
+  --gold:#C9922A;--gold-light:#E8B84B;--cream:#F5EDD8;
+  --wood-light:#A0714F;--text-dark:#1A0F00;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100%;overflow:hidden;}
+body{
+  font-family:'Noto Sans KR',sans-serif;
+  background:radial-gradient(ellipse at 50% 45%,#2D5A3D 0%,#1A3D28 45%,#0D2418 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;
+}
+
+/* 펠트 질감 */
+body::before{
+  content:'';position:absolute;inset:0;
+  background:
+    repeating-linear-gradient(92deg,transparent 0,rgba(255,255,255,.012) 1px,transparent 2px,transparent 60px),
+    repeating-linear-gradient(5deg,transparent 0,rgba(0,0,0,.03) 1px,transparent 2px,transparent 80px);
+  pointer-events:none;
+}
+
+/* ── 헤더 ── */
+.bc-header{
+  position:absolute;top:1.8rem;left:50%;transform:translateX(-50%);
+  text-align:center;z-index:5;
+}
+.bc-title{
+  font-family:'Noto Serif KR',serif;font-size:1.3rem;
+  color:rgba(232,184,75,.4);letter-spacing:.22em;
+}
+.bc-round{font-size:.78rem;color:rgba(255,255,255,.28);margin-top:.2rem;letter-spacing:.1em;}
+
+/* LIVE 뱃지 */
+.live-badge{
+  position:absolute;top:1.5rem;right:1.5rem;
+  background:#C0392B;color:#fff;font-size:.7rem;font-weight:900;
+  letter-spacing:.12em;padding:.28rem .65rem;border-radius:6px;
+  animation:blink 1.5s infinite;z-index:10;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ── 대기 화면 ── */
+#waiting{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;z-index:4;
+  transition:opacity .4s;
+}
+#waiting.hidden{opacity:0;pointer-events:none;}
+.wait-icon{font-size:5rem;animation:float 3s ease infinite;margin-bottom:1rem;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.wait-text{font-family:'Noto Serif KR',serif;font-size:1.4rem;color:rgba(232,184,75,.4);}
+
+/* ── 카드 스테이지 ── */
+#card-stage{
+  display:flex;flex-direction:column;align-items:center;gap:0;
+  z-index:5;position:relative;
+}
+
+/* 스팟라이트 */
+.spotlight{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:520px;height:520px;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,146,42,.1) 0%,transparent 70%);
+  pointer-events:none;animation:spotlight 3s ease infinite;z-index:1;
+}
+@keyframes spotlight{0%,100%{opacity:.6;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.07)}}
+
+/* 카드 3D 플립 */
+.card-flipper{perspective:1200px;width:280px;height:390px;z-index:2;}
+.card-inner{
+  width:100%;height:100%;position:relative;
+  transform-style:preserve-3d;
+  transition:transform .75s cubic-bezier(.4,0,.2,1);
+}
+.card-inner.flipped{transform:rotateY(180deg);}
+.card-face{
+  position:absolute;inset:0;backface-visibility:hidden;border-radius:24px;
+}
+
+/* 뒷면 */
+.card-back{
+  background:linear-gradient(135deg,#1A3A5C 0%,#0D2135 100%);
+  border:3.5px solid #3A6A9C;
+  box-shadow:0 16px 50px rgba(0,0,0,.65);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;
+}
+.card-back .b-emoji{font-size:4.5rem;opacity:.18;}
+.card-back .b-text{font-family:'Noto Serif KR',serif;font-size:1.6rem;color:rgba(255,255,255,.12);letter-spacing:.15em;}
+
+/* 앞면 */
+.card-front{
+  background:var(--cream);
+  border:3.5px solid var(--gold);
+  box-shadow:0 0 0 8px rgba(201,146,42,.14),0 0 70px rgba(201,146,42,.3),0 16px 50px rgba(0,0,0,.65);
+  transform:rotateY(180deg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:2.2rem 1.8rem 2.5rem;text-align:center;position:relative;
+}
+.card-front .f-emoji{font-size:5.5rem;line-height:1;margin-bottom:1rem;}
+.card-front .f-type{
+  font-size:.7rem;font-weight:700;border-radius:7px;padding:.22rem .7rem;
+  letter-spacing:.06em;margin-bottom:.7rem;display:inline-block;
+}
+.card-front .f-name{
+  font-family:'Noto Serif KR',serif;font-size:1.75rem;font-weight:900;
+  color:#1A0F00;margin-bottom:.7rem;line-height:1.2;
+}
+.card-front .f-desc{font-size:.88rem;color:#5C3D1E;line-height:1.6;max-width:210px;}
+.card-front .f-code{
+  position:absolute;bottom:12px;right:14px;
+  font-size:.58rem;color:rgba(90,60,20,.38);font-weight:700;letter-spacing:.06em;
+}
+
+/* 카드 아래 텍스트 */
+.card-info{margin-top:1.8rem;text-align:center;z-index:2;min-height:60px;}
+.info-name{
+  font-family:'Noto Serif KR',serif;font-size:1.35rem;color:var(--gold-light);
+  opacity:0;transform:translateY(8px);transition:all .5s .55s;
+}
+.info-name.show{opacity:1;transform:translateY(0);}
+.info-desc{
+  font-size:.82rem;color:rgba(255,255,255,.45);margin-top:.3rem;
+  opacity:0;transition:all .5s .75s;
+}
+.info-desc.show{opacity:1;}
+
+/* ── 하단 규칙 칩 ── */
+#active-rules{
+  position:absolute;bottom:1.4rem;left:50%;transform:translateX(-50%);
+  display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center;
+  max-width:90vw;z-index:5;
+}
+.rule-chip{
+  background:rgba(0,0,0,.45);border:1px solid rgba(201,146,42,.3);
+  border-radius:20px;padding:.28rem .8rem;font-size:.7rem;
+  color:rgba(232,184,75,.65);backdrop-filter:blur(4px);
+  transition:all .3s;
+}
+.rule-chip.new{
+  border-color:var(--gold);color:var(--gold-light);
+  background:rgba(201,146,42,.15);
+  animation:chip-pop .5s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes chip-pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* 타입별 색 */
+.type-common{background:#D4EDDA;color:#155724;}
+.type-team{background:#F8D7DA;color:#721C24;}
+.type-special{background:#E8D8F8;color:#5A2C85;}
+
+/* 연결 상태 표시 */
+.conn-status{
+  position:absolute;bottom:1.4rem;right:1.5rem;
+  font-size:.65rem;color:rgba(255,255,255,.25);z-index:10;
+}
+</style>
+</head>
+<body>
+
+<div class="live-badge">● LIVE</div>
+<div class="spotlight"></div>
+
+<div class="bc-header">
+  <div class="bc-title">BABO TIME</div>
+  <div class="bc-round" id="bc-round">라운드 1</div>
+</div>
+
+<!-- 대기 -->
+<div id="waiting">
+  <div class="wait-icon">🃏</div>
+  <div class="wait-text">운영진이 카드를 준비 중...</div>
+</div>
+
+<!-- 카드 스테이지 -->
+<div id="card-stage" style="display:none;">
+  <div class="card-flipper">
+    <div class="card-inner" id="card-inner">
+      <div class="card-face card-back">
+        <div class="b-emoji">🃏</div>
+        <div class="b-text">바보타임</div>
+      </div>
+      <div class="card-face card-front">
+        <span class="f-emoji" id="f-emoji"></span>
+        <span class="f-type" id="f-type"></span>
+        <div class="f-name" id="f-name"></div>
+        <div class="f-desc" id="f-desc"></div>
+        <div class="f-code" id="f-code"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card-info">
+    <div class="info-name" id="info-name"></div>
+    <div class="info-desc" id="info-desc"></div>
+  </div>
+</div>
+
+<div id="active-rules"></div>
+<div class="conn-status" id="conn-status">운영 패널 연결 대기 중...</div>
+
+<script>
+let lastTs = 0;
+let activeRules = [];
+
+/* ── localStorage 변화 감지 ── */
+window.addEventListener('storage', e => {
+  if (e.key !== 'babo_broadcast') return;
+  try {
+    const data = JSON.parse(e.newValue);
+    if (!data || data.ts <= lastTs) return;
+    lastTs = data.ts;
+    handleMessage(data);
+  } catch(err) {}
+});
+
+/* ── 같은 탭에서 테스트할 경우 대비 (폴링 방식 병행) ── */
+let _lastRaw = '';
+setInterval(() => {
+  const raw = localStorage.getItem('babo_broadcast');
+  if (!raw || raw === _lastRaw) return;
+  _lastRaw = raw;
+  try {
+    const data = JSON.parse(raw);
+    if (!data || data.ts <= lastTs) return;
+    lastTs = data.ts;
+    handleMessage(data);
+  } catch(err) {}
+}, 300);
+
+function handleMessage(data) {
+  document.getElementById('conn-status').textContent = '✅ 운영 패널 연결됨';
+
+  if (data.type === 'round') {
+    document.getElementById('bc-round').textContent = `라운드 ${data.round}`;
+    return;
+  }
+
+  if (data.type === 'card') {
+    document.getElementById('bc-round').textContent = `라운드 ${data.round}`;
+    activeRules = data.activeRules || [];
+    showCard(data.card);
+  }
+}
+
+function showCard(card) {
+  // 카드 데이터 채우기
+  document.getElementById('f-emoji').textContent = card.emoji;
+  document.getElementById('f-name').textContent = card.name;
+  document.getElementById('f-desc').textContent = card.desc;
+  document.getElementById('f-code').textContent = card.code;
+  document.getElementById('info-name').textContent = card.name;
+  document.getElementById('info-desc').textContent = card.desc;
+
+  const typeMap = {common:'공통카드',team:'팀별카드',special:'특수카드'};
+  const ft = document.getElementById('f-type');
+  ft.textContent = typeMap[card.type] || card.type;
+  ft.className = `f-type type-${card.type}`;
+
+  // 대기 화면 숨기기
+  document.getElementById('waiting').classList.add('hidden');
+
+  // 카드 스테이지 표시
+  const stage = document.getElementById('card-stage');
+  stage.style.display = 'flex';
+
+  // 뒤집기 리셋 후 애니메이션
+  const inner = document.getElementById('card-inner');
+  inner.classList.remove('flipped');
+  document.getElementById('info-name').classList.remove('show');
+  document.getElementById('info-desc').classList.remove('show');
+
+  // 한 프레임 뒤에 플립
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        inner.classList.add('flipped');
+        setTimeout(() => {
+          document.getElementById('info-name').classList.add('show');
+          document.getElementById('info-desc').classList.add('show');
+        }, 400);
+      }, 80);
+    });
+  });
+
+  // 하단 규칙 칩
+  const rulesEl = document.getElementById('active-rules');
+  rulesEl.innerHTML = activeRules.map((r, i) => `
+    <div class="rule-chip ${r.code === card.code ? 'new' : ''}">
+      ${r.emoji} ${r.name}
+    </div>
+  `).join('');
+}
+</script>
+</body>
+</html>

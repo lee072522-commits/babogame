@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>바보타임 — 운영진 패널</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@600;700;900&display=swap');
+:root {
+  --wood-dark:#3D2610;--wood-mid:#6B4728;--wood-light:#A0714F;
+  --gold:#C9922A;--gold-light:#E8B84B;--cream:#F5EDD8;
+  --red:#C0392B;--text-dark:#1A0F00;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;background:#0f0800;color:var(--cream);min-height:100vh;}
+
+.op-header{
+  background:#1A0F00;border-bottom:2px solid var(--wood-mid);
+  padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;
+}
+.op-header-title{font-family:'Noto Serif KR',serif;font-size:1.1rem;color:var(--gold-light);}
+.header-right{display:flex;gap:.6rem;align-items:center;}
+.live-badge{
+  background:rgba(201,146,42,.15);border:1px solid var(--gold);border-radius:8px;
+  padding:.3rem .8rem;font-size:.72rem;color:var(--gold);font-weight:700;letter-spacing:.04em;
+  transition:all .3s;
+}
+.live-badge.on{background:rgba(192,57,43,.2);border-color:#E74C3C;color:#E74C3C;animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
+
+.btn-open-bc{
+  background:var(--gold);color:#1A0F00;border:none;border-radius:8px;
+  padding:.4rem .9rem;font-size:.78rem;font-weight:700;cursor:pointer;
+  font-family:'Noto Sans KR',sans-serif;transition:all .15s;white-space:nowrap;
+}
+.btn-open-bc:hover{background:var(--gold-light);}
+
+.op-body{display:grid;grid-template-columns:360px 1fr;min-height:calc(100vh - 60px);}
+
+/* ── 왼쪽 ── */
+.op-left{background:#140900;border-right:2px solid var(--wood-dark);padding:1.2rem;display:flex;flex-direction:column;gap:1rem;overflow-y:auto;}
+.section-title{font-size:.68rem;font-weight:700;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;}
+
+.panel-box{background:#1A0F00;border:1.5px solid var(--wood-dark);border-radius:12px;padding:1rem;}
+
+/* 코드 입력 */
+.code-row{display:flex;gap:.5rem;}
+.code-input{
+  flex:1;background:#0f0800;border:2px solid var(--wood-mid);border-radius:8px;
+  color:var(--gold-light);font-family:'Noto Sans KR',sans-serif;
+  font-size:1.2rem;font-weight:700;padding:.55rem .9rem;outline:none;
+  letter-spacing:.1em;text-transform:uppercase;transition:border-color .15s;
+}
+.code-input:focus{border-color:var(--gold);}
+.code-input::placeholder{color:rgba(160,113,79,.35);font-size:.82rem;letter-spacing:.02em;}
+.btn-lookup{
+  background:rgba(255,255,255,.08);border:1.5px solid var(--wood-mid);border-radius:8px;
+  color:var(--cream);font-family:'Noto Sans KR',sans-serif;font-size:.82rem;
+  padding:.55rem .9rem;cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.btn-lookup:hover{border-color:var(--gold);color:var(--gold-light);}
+.code-hint{font-size:.68rem;color:var(--wood-light);margin-top:.4rem;}
+.code-error{font-size:.7rem;color:#E74C3C;margin-top:.35rem;display:none;}
+
+/* 미리보기 */
+.preview-wrap{display:flex;flex-direction:column;align-items:center;padding:.8rem 0;gap:.8rem;min-height:200px;justify-content:center;}
+.preview-empty{text-align:center;color:rgba(160,113,79,.35);font-size:.82rem;line-height:1.8;}
+.preview-card{
+  width:150px;background:var(--cream);border:2.5px solid var(--gold);
+  border-radius:14px;padding:1.2rem .9rem 1rem;text-align:center;
+  box-shadow:0 4px 20px rgba(0,0,0,.5);position:relative;
+}
+.pc-code{position:absolute;bottom:7px;right:9px;font-size:.56rem;color:rgba(90,60,20,.45);font-weight:700;letter-spacing:.05em;}
+.pc-emoji{font-size:2.4rem;display:block;margin-bottom:.4rem;}
+.pc-badge{display:inline-block;font-size:.58rem;font-weight:700;border-radius:5px;padding:.12rem .45rem;margin-bottom:.3rem;}
+.pc-name{font-family:'Noto Serif KR',serif;font-size:.85rem;font-weight:700;color:#1A0F00;margin-bottom:.3rem;}
+.pc-desc{font-size:.65rem;color:#5C3D1E;line-height:1.35;}
+
+.btn-broadcast{
+  width:100%;background:#C0392B;color:#fff;border:none;border-radius:10px;
+  padding:.85rem;font-size:.95rem;font-weight:700;font-family:'Noto Serif KR',serif;
+  cursor:pointer;transition:all .2s;box-shadow:0 4px 16px rgba(192,57,43,.35);
+  letter-spacing:.02em;
+}
+.btn-broadcast:hover:not(:disabled){background:#E74C3C;transform:translateY(-1px);}
+.btn-broadcast:disabled{background:#2A1A0A;color:rgba(255,255,255,.2);cursor:default;box-shadow:none;transform:none;}
+
+/* 상태 */
+.status-row{display:flex;align-items:center;gap:.6rem;}
+.status-dot{width:10px;height:10px;border-radius:50%;background:#333;flex-shrink:0;transition:background .3s;}
+.status-dot.live{background:#E74C3C;animation:blink 1.2s infinite;}
+.status-name{font-size:.85rem;color:var(--cream);font-weight:700;}
+.status-text{font-size:.7rem;color:var(--wood-light);margin-top:1px;}
+
+/* 라운드 */
+.round-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;}
+.round-num{font-family:'Noto Serif KR',serif;font-size:1.2rem;color:var(--gold-light);}
+.btn-round{
+  background:rgba(255,255,255,.05);border:1px solid var(--wood-mid);border-radius:6px;
+  color:var(--cream);font-family:'Noto Sans KR',sans-serif;font-size:.75rem;
+  padding:.3rem .65rem;cursor:pointer;transition:all .15s;
+}
+.btn-round:hover{border-color:var(--gold);color:var(--gold-light);}
+.active-rules-mini{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.4rem;}
+.rule-mini-chip{background:rgba(201,146,42,.12);border:1px solid rgba(201,146,42,.4);border-radius:6px;padding:.18rem .45rem;font-size:.65rem;color:var(--gold-light);}
+
+/* ── 오른쪽: 카드 목록 ── */
+.op-right{padding:1.2rem;overflow-y:auto;}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.6rem;}
+.group-header{
+  grid-column:1/-1;font-size:.65rem;font-weight:700;border-radius:6px;
+  padding:.28rem .65rem;margin-top:.5rem;letter-spacing:.06em;
+}
+.card-thumb{
+  background:#1A0F00;border:1.5px solid var(--wood-dark);border-radius:10px;
+  padding:.7rem .5rem;text-align:center;cursor:pointer;transition:all .15s;
+}
+.card-thumb:hover{border-color:var(--gold);background:#251508;}
+.card-thumb.selected{border-color:var(--gold);background:rgba(201,146,42,.15);}
+.ct-emoji{font-size:1.5rem;margin-bottom:.25rem;}
+.ct-name{font-size:.68rem;color:var(--cream);font-weight:700;margin-bottom:.2rem;line-height:1.2;}
+.ct-code{font-size:.58rem;color:var(--wood-light);font-weight:700;letter-spacing:.07em;background:rgba(0,0,0,.3);border-radius:4px;padding:.08rem .3rem;display:inline-block;}
+.ct-type{font-size:.55rem;border-radius:4px;padding:.08rem .3rem;display:inline-block;margin-top:.18rem;font-weight:700;}
+
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--wood-dark);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<div class="op-header">
+  <div class="op-header-title">🎛️ 바보타임 — 운영진 패널</div>
+  <div class="header-right">
+    <div class="live-badge" id="live-badge">⚫ 대기 중</div>
+    <button class="btn-open-bc" onclick="openBroadcast()">📺 송출 화면 열기</button>
+  </div>
+</div>
+
+<div class="op-body">
+  <div class="op-left">
+
+    <!-- 라운드 -->
+    <div class="panel-box">
+      <div class="section-title">라운드</div>
+      <div class="round-row">
+        <div class="round-num">라운드 <span id="round-num">1</span></div>
+        <div style="display:flex;gap:.35rem;">
+          <button class="btn-round" onclick="changeRound(-1)">◀</button>
+          <button class="btn-round" onclick="changeRound(1)">▶</button>
+        </div>
+      </div>
+      <div style="font-size:.67rem;color:var(--wood-light);margin-bottom:.35rem;">적용 중인 규칙</div>
+      <div class="active-rules-mini" id="op-active-rules">
+        <span style="color:rgba(160,113,79,.35);font-size:.67rem;">없음</span>
+      </div>
+    </div>
+
+    <!-- 코드 입력 -->
+    <div class="panel-box">
+      <div class="section-title">카드 코드 입력</div>
+      <div class="code-row">
+        <input type="text" class="code-input" id="code-input" placeholder="R-001" maxlength="6"
+          oninput="this.value=this.value.toUpperCase()"
+          onkeydown="if(event.key==='Enter')lookupCode()">
+        <button class="btn-lookup" onclick="lookupCode()">확인</button>
+      </div>
+      <div class="code-hint">카드 우측 하단 코드 입력 후 Enter 또는 확인</div>
+      <div class="code-error" id="code-error"></div>
+    </div>
+
+    <!-- 미리보기 + 송출 -->
+    <div class="panel-box" style="flex:1;display:flex;flex-direction:column;">
+      <div class="section-title">미리보기</div>
+      <div class="preview-wrap" id="preview-wrap">
+        <div class="preview-empty" id="preview-empty">코드를 입력하면<br>카드가 여기 표시됩니다</div>
+        <div id="preview-card" style="display:none;">
+          <div class="preview-card">
+            <span class="pc-emoji" id="pc-emoji"></span>
+            <div class="pc-badge" id="pc-badge"></div>
+            <div class="pc-name" id="pc-name"></div>
+            <div class="pc-desc" id="pc-desc"></div>
+            <div class="pc-code" id="pc-code"></div>
+          </div>
+        </div>
+      </div>
+      <button class="btn-broadcast" id="btn-broadcast" disabled onclick="broadcastCard()">
+        📺 이 카드 송출하기
+      </button>
+    </div>
+
+    <!-- 송출 상태 -->
+    <div class="panel-box">
+      <div class="section-title">현재 송출</div>
+      <div class="status-row">
+        <div class="status-dot" id="status-dot"></div>
+        <div>
+          <div class="status-name" id="status-name">대기 중</div>
+          <div class="status-text" id="status-text">아직 송출된 카드 없음</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 카드 목록 -->
+  <div class="op-right">
+    <div class="section-title" style="margin-bottom:.8rem;">전체 카드 목록 — 클릭하여 선택</div>
+    <div class="card-grid" id="card-grid"></div>
+  </div>
+</div>
+
+<script>
+const CARD_DB = {
+  'R-001':{emoji:'🚫',name:'"네/아니오" 금지',desc:'이 두 단어를 말하면 즉시 벌점!',type:'common'},
+  'R-002':{emoji:'😂',name:'웃음 참기',desc:'소리 내어 웃거나 크게 미소 지으면 벌점',type:'common'},
+  'R-003':{emoji:'👉',name:'손가락질 금지',desc:'손가락으로 사람이나 물건을 가리키면 벌점',type:'common'},
+  'R-004':{emoji:'🤔',name:'추임새 금지',desc:'"음","어","그" 같은 추임새를 넣으면 벌점',type:'common'},
+  'R-005':{emoji:'🙅',name:'고개짓 금지',desc:'끄덕이거나 가로젓는 행동 금지',type:'common'},
+  'R-006':{emoji:'🔢',name:'숫자 말하기 금지',desc:'숫자(하나,둘,1,2…)를 말하면 벌점',type:'common'},
+  'R-007':{emoji:'📛',name:'이름 부르기 금지',desc:'상대방의 이름을 직접 말하면 벌점',type:'common'},
+  'R-008':{emoji:'🤐',name:'"바보" 금지',desc:'"바보" 또는 "멍청이"를 말하면 내가 벌점',type:'common'},
+  'R-009':{emoji:'👏',name:'박수 금지',desc:'어떤 상황에서도 박수를 치면 벌점',type:'common'},
+  'R-010':{emoji:'⏱',name:'3초 후 대답',desc:'질문을 받으면 반드시 3초 후에만 대답 가능',type:'common'},
+  'R-011':{emoji:'🎵',name:'노래·흥얼거림 금지',desc:'흥얼거리거나 노래하면 즉시 벌점',type:'common'},
+  'R-012':{emoji:'📱',name:'왼손 사용 금지',desc:'무언가를 잡거나 들 때 왼손을 사용하면 벌점',type:'common'},
+  'A-001':{emoji:'🔄',name:'순서 반전',desc:'이번 라운드 차례가 반대 방향으로 바뀝니다',type:'special'},
+  'A-002':{emoji:'⏭',name:'차례 건너뛰기',desc:'다음 플레이어의 차례가 즉시 건너뜁니다',type:'special'},
+  'A-003':{emoji:'🔀',name:'자리 바꾸기',desc:'운영진이 지정하는 두 플레이어가 자리를 교환합니다',type:'special'},
+  'A-004':{emoji:'🎯',name:'지목 챌린지',desc:'한 플레이어를 지목해 즉흥 미션을 내릴 수 있습니다',type:'special'},
+  'A-005':{emoji:'🤫',name:'침묵 타임',desc:'30초 동안 모두 말할 수 없습니다. 말하면 벌점!',type:'special'},
+  'B-001':{emoji:'✨',name:'면죄부',desc:'이 카드를 받은 플레이어는 벌점 1개를 없앨 수 있습니다',type:'special'},
+  'B-002':{emoji:'🛡',name:'규칙 면제',desc:'이번 라운드 1회에 한해 규칙을 어겨도 벌점 없음',type:'special'},
+  'B-003':{emoji:'👑',name:'바보왕 선포',desc:'현재 벌점이 가장 많은 사람에게 "바보왕" 왕관을 씌웁니다',type:'special'},
+  'P-001':{emoji:'🎤',name:'노래 한 소절',desc:'운영진이 지정한 노래를 한 소절 불러야 합니다',type:'team'},
+  'P-002':{emoji:'🤸',name:'만세 10번',desc:'자리에서 일어나 만세를 10번 외쳐야 합니다',type:'team'},
+  'P-003':{emoji:'😤',name:'벌점 2배',desc:'이번 라운드 내 벌점이 2배로 적용됩니다',type:'team'},
+};
+const TYPE_META={
+  common:{label:'공통카드',color:'#155724',bg:'#D4EDDA'},
+  team:{label:'팀별카드',color:'#721C24',bg:'#F8D7DA'},
+  special:{label:'특수카드',color:'#5A2C85',bg:'#E8D8F8'},
+};
+
+let currentCard=null;
+let activeRules=[];
+let currentRound=1;
+let bcWindow=null;
+
+/* ── 송출 화면 열기 ── */
+function openBroadcast(){
+  bcWindow=window.open('index.html','babobtime_broadcast','width=1280,height=720');
+}
+
+/* ── localStorage로 메시지 전송 ── */
+function publish(payload){
+  localStorage.setItem('babo_broadcast', JSON.stringify({...payload, ts: Date.now()}));
+}
+
+/* ── 라운드 ── */
+function changeRound(d){
+  currentRound=Math.max(1,currentRound+d);
+  document.getElementById('round-num').textContent=currentRound;
+  publish({type:'round', round:currentRound});
+}
+
+/* ── 카드 조회 ── */
+function lookupCode(){
+  let raw=document.getElementById('code-input').value.trim().toUpperCase();
+  const errEl=document.getElementById('code-error');
+  if(!raw){showErr('코드를 입력해 주세요');return;}
+  const code=raw.includes('-')?raw:raw[0]+'-'+raw.slice(1);
+  if(!CARD_DB[code]){showErr(`"${code}" 코드를 찾을 수 없습니다`);return;}
+  errEl.style.display='none';
+  selectCard(code);
+}
+function showErr(msg){
+  const el=document.getElementById('code-error');
+  el.textContent=msg; el.style.display='block';
+}
+
+function selectCard(code){
+  const card=CARD_DB[code];
+  currentCard={code,...card};
+  document.getElementById('code-input').value=code;
+  document.getElementById('code-error').style.display='none';
+  // 썸네일 하이라이트
+  document.querySelectorAll('.card-thumb').forEach(e=>e.classList.remove('selected'));
+  const th=document.getElementById('thumb-'+code);
+  if(th){th.classList.add('selected');th.scrollIntoView({behavior:'smooth',block:'nearest'});}
+  // 미리보기
+  const meta=TYPE_META[card.type];
+  document.getElementById('preview-empty').style.display='none';
+  document.getElementById('preview-card').style.display='block';
+  document.getElementById('pc-emoji').textContent=card.emoji;
+  document.getElementById('pc-name').textContent=card.name;
+  document.getElementById('pc-desc').textContent=card.desc;
+  document.getElementById('pc-code').textContent=code;
+  const b=document.getElementById('pc-badge');
+  b.textContent=meta.label; b.style.background=meta.bg; b.style.color=meta.color;
+  document.getElementById('btn-broadcast').disabled=false;
+}
+
+/* ── 송출 ── */
+function broadcastCard(){
+  if(!currentCard)return;
+  if(currentCard.type==='common'&&!activeRules.find(r=>r.code===currentCard.code)){
+    activeRules.push(currentCard);
+    updateActiveRulesUI();
+  }
+  // localStorage 이벤트로 송출 화면에 전달
+  publish({
+    type:'card',
+    card: currentCard,
+    activeRules,
+    round: currentRound,
+  });
+  // 상태 업데이트
+  document.getElementById('status-dot').classList.add('live');
+  document.getElementById('status-name').textContent=currentCard.name;
+  document.getElementById('status-text').textContent=`${currentCard.code} · ${TYPE_META[currentCard.type].label} 카드 송출 중`;
+  document.getElementById('live-badge').textContent='🔴 LIVE 송출 중';
+  document.getElementById('live-badge').classList.add('on');
+}
+
+function updateActiveRulesUI(){
+  const el=document.getElementById('op-active-rules');
+  if(!activeRules.length){el.innerHTML='<span style="color:rgba(160,113,79,.35);font-size:.67rem;">없음</span>';return;}
+  el.innerHTML=activeRules.map(r=>`<span class="rule-mini-chip">${r.emoji} ${r.name}</span>`).join('');
+}
+
+/* ── 카드 그리드 ── */
+function buildGrid(){
+  const grid=document.getElementById('card-grid');
+  const groups={common:[],team:[],special:[]};
+  Object.entries(CARD_DB).forEach(([code,card])=>groups[card.type].push({code,...card}));
+  ['common','team','special'].forEach(type=>{
+    const meta=TYPE_META[type];
+    const h=document.createElement('div');
+    h.className='group-header';
+    h.style.cssText=`background:${meta.bg}18;border:1px solid ${meta.bg}55;color:${meta.color}`;
+    h.textContent=`${meta.label} 카드 (${groups[type].length}장)`;
+    grid.appendChild(h);
+    groups[type].forEach(card=>{
+      const el=document.createElement('div');
+      el.className='card-thumb'; el.id='thumb-'+card.code;
+      el.innerHTML=`<div class="ct-emoji">${card.emoji}</div>
+        <div class="ct-name">${card.name}</div>
+        <div class="ct-code">${card.code}</div>
+        <div class="ct-type" style="background:${meta.bg};color:${meta.color}">${meta.label}</div>`;
+      el.addEventListener('click',()=>selectCard(card.code));
+      grid.appendChild(el);
+    });
+  });
+}
+buildGrid();
+</script>
+</body>
+</html>
