@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>바보타임 — 송출 화면</title>
+<script src="cards.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Noto+Serif+KR:wght@700;900&display=swap');
 :root{
@@ -260,9 +261,8 @@ function showCard(card) {
   document.getElementById('info-name').textContent = card.name;
   document.getElementById('info-desc').textContent = card.desc;
 
-  const typeMap = {common:'공통카드',team:'팀별카드',special:'특수카드'};
   const ft = document.getElementById('f-type');
-  ft.textContent = typeMap[card.type] || card.type;
+  ft.textContent = (TYPE_META[card.type] && TYPE_META[card.type].label) || card.type;
   ft.className = `f-type type-${card.type}`;
 
   // 대기 화면 숨기기
