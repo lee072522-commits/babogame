@@ -9,15 +9,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Noto+Serif+KR:wght@700;900&display=swap');
 :root{
   --gold:#C9922A;--gold-light:#E8B84B;--cream:#F5EDD8;
-  --wood-light:#A0714F;--text-dark:#1A0F00;
+  --wood-light:#A0714F;--wood-dark:#3D2610;--text-dark:#1A0F00;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{width:100%;height:100%;overflow:hidden;}
 body{
   font-family:'Noto Sans KR',sans-serif;
   background:radial-gradient(ellipse at 50% 45%,#2D5A3D 0%,#1A3D28 45%,#0D2418 100%);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
   position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:1rem;
 }
 
 /* 펠트 질감 */
@@ -27,18 +30,8 @@ body::before{
     repeating-linear-gradient(92deg,transparent 0,rgba(255,255,255,.012) 1px,transparent 2px,transparent 60px),
     repeating-linear-gradient(5deg,transparent 0,rgba(0,0,0,.03) 1px,transparent 2px,transparent 80px);
   pointer-events:none;
+  z-index: 1;
 }
-
-/* ── 헤더 ── */
-.bc-header{
-  position:absolute;top:1.8rem;left:50%;transform:translateX(-50%);
-  text-align:center;z-index:5;
-}
-.bc-title{
-  font-family:'Noto Serif KR',serif;font-size:1.3rem;
-  color:rgba(232,184,75,.4);letter-spacing:.22em;
-}
-.bc-round{font-size:.78rem;color:rgba(255,255,255,.28);margin-top:.2rem;letter-spacing:.1em;}
 
 /* LIVE 뱃지 */
 .live-badge{
@@ -49,168 +42,483 @@ body::before{
 }
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
 
-/* ── 대기 화면 ── */
-#waiting{
-  position:absolute;inset:0;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;z-index:4;
-  transition:opacity .4s;
-}
-#waiting.hidden{opacity:0;pointer-events:none;}
-.wait-icon{font-size:5rem;animation:float 3s ease infinite;margin-bottom:1rem;}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
-.wait-text{font-family:'Noto Serif KR',serif;font-size:1.4rem;color:rgba(232,184,75,.4);}
-
-/* ── 카드 스테이지 ── */
-#card-stage{
-  display:flex;flex-direction:column;align-items:center;gap:0;
-  z-index:5;position:relative;
+/* ── 전체 3컬럼 레이아웃 ── */
+.main-layout {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 1.5rem;
+  z-index: 2;
+  position: relative;
 }
 
-/* 스팟라이트 */
-.spotlight{
-  position:absolute;top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  width:520px;height:520px;border-radius:50%;
-  background:radial-gradient(circle,rgba(201,146,42,.1) 0%,transparent 70%);
-  pointer-events:none;animation:spotlight 3s ease infinite;z-index:1;
-}
-@keyframes spotlight{0%,100%{opacity:.6;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.07)}}
-
-/* 카드 3D 플립 */
-.card-flipper{perspective:1200px;width:280px;height:390px;z-index:2;}
-.card-inner{
-  width:100%;height:100%;position:relative;
-  transform-style:preserve-3d;
-  transition:transform .75s cubic-bezier(.4,0,.2,1);
-}
-.card-inner.flipped{transform:rotateY(180deg);}
-.card-face{
-  position:absolute;inset:0;backface-visibility:hidden;border-radius:24px;
+/* 양옆 사이드 팀 컬럼 */
+.side-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 280px; /* 3팀씩 양옆 넓게 구성 */
+  flex-shrink: 0;
+  gap: 1rem;
 }
 
-/* 뒷면 */
-.card-back{
-  background:linear-gradient(135deg,#1A3A5C 0%,#0D2135 100%);
-  border:3.5px solid #3A6A9C;
-  box-shadow:0 16px 50px rgba(0,0,0,.65);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;
-}
-.card-back .b-emoji{font-size:4.5rem;opacity:.18;}
-.card-back .b-text{font-family:'Noto Serif KR',serif;font-size:1.6rem;color:rgba(255,255,255,.12);letter-spacing:.15em;}
-
-/* 앞면 */
-.card-front{
-  background:var(--cream);
-  border:3.5px solid var(--gold);
-  box-shadow:0 0 0 8px rgba(201,146,42,.14),0 0 70px rgba(201,146,42,.3),0 16px 50px rgba(0,0,0,.65);
-  transform:rotateY(180deg);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:2.2rem 1.8rem 2.5rem;text-align:center;position:relative;
-}
-.card-front .f-emoji{font-size:5.5rem;line-height:1;margin-bottom:1rem;}
-.card-front .f-type{
-  font-size:.7rem;font-weight:700;border-radius:7px;padding:.22rem .7rem;
-  letter-spacing:.06em;margin-bottom:.7rem;display:inline-block;
-}
-.card-front .f-name{
-  font-family:'Noto Serif KR',serif;font-size:1.75rem;font-weight:900;
-  color:#1A0F00;margin-bottom:.7rem;line-height:1.2;
-}
-.card-front .f-desc{font-size:.88rem;color:#5C3D1E;line-height:1.6;max-width:210px;}
-.card-front .f-code{
-  position:absolute;bottom:12px;right:14px;
-  font-size:.58rem;color:rgba(90,60,20,.38);font-weight:700;letter-spacing:.06em;
+/* 중앙 영역 */
+.center-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
 }
 
-/* 카드 아래 텍스트 */
-.card-info{margin-top:1.8rem;text-align:center;z-index:2;min-height:60px;}
-.info-name{
-  font-family:'Noto Serif KR',serif;font-size:1.35rem;color:var(--gold-light);
-  opacity:0;transform:translateY(8px);transition:all .5s .55s;
+/* ── 헤더 영역 ── */
+.bc-header-wrap {
+  text-align: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
 }
-.info-name.show{opacity:1;transform:translateY(0);}
-.info-desc{
-  font-size:.82rem;color:rgba(255,255,255,.45);margin-top:.3rem;
-  opacity:0;transition:all .5s .75s;
+.bc-title{
+  font-family:'Noto Serif KR',serif;font-size:1.6rem;
+  color:var(--gold-light);letter-spacing:.3em;
+  text-shadow: 0 3px 15px rgba(0,0,0,0.6);
+  font-weight: 900;
 }
-.info-desc.show{opacity:1;}
+.bc-round{font-size:.9rem;color:rgba(255,255,255,0.45);letter-spacing:.15em;font-weight: 700;}
 
-/* ── 하단 규칙 칩 ── */
-#active-rules{
-  position:absolute;bottom:1.4rem;left:50%;transform:translateX(-50%);
-  display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center;
-  max-width:90vw;z-index:5;
+/* 팀 순서 바 */
+.turn-order-container {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 0.45rem 1.4rem;
+  border-radius: 30px;
+  border: 1px solid rgba(201, 146, 42, 0.25);
+  margin-top: 0.4rem;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
-.rule-chip{
-  background:rgba(0,0,0,.45);border:1px solid rgba(201,146,42,.3);
-  border-radius:20px;padding:.28rem .8rem;font-size:.7rem;
-  color:rgba(232,184,75,.65);backdrop-filter:blur(4px);
-  transition:all .3s;
+.turn-team-chip {
+  padding: 0.3rem 0.85rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1.5px solid transparent;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-.rule-chip.new{
-  border-color:var(--gold);color:var(--gold-light);
-  background:rgba(201,146,42,.15);
-  animation:chip-pop .5s cubic-bezier(.34,1.56,.64,1);
+.turn-team-chip.active {
+  background: rgba(201, 146, 42, 0.2);
+  border-color: var(--gold);
+  color: var(--gold-light);
+  transform: scale(1.08);
+  box-shadow: 0 0 12px rgba(201, 146, 42, 0.4);
+  font-weight: 700;
 }
-@keyframes chip-pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.turn-arrow {
+  color: var(--gold);
+  font-size: 0.7rem;
+  opacity: 0.5;
+  margin-left: 0.2rem;
+}
 
-/* 타입별 색 */
-.type-common{background:#D4EDDA;color:#155724;}
-.type-team{background:#F8D7DA;color:#721C24;}
-.type-special{background:#E8D8F8;color:#5A2C85;}
+/* ── 중앙 메인 보드 (덱 & 공통슬롯) ── */
+.board-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4rem;
+  flex: 1;
+  width: 100%;
+}
+
+/* 카드 덱 */
+.deck-container {
+  position: relative;
+  width: 190px;
+  height: 270px;
+  border-radius: 18px;
+  z-index: 5;
+}
+.deck-card-layer {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #1A3A5C 0%, #0D2135 100%);
+  border: 3.5px solid #3A6A9C;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+}
+.deck-card-layer:nth-child(1) { transform: translate(-4px, -4px); }
+.deck-card-layer:nth-child(2) { transform: translate(-8px, -8px); }
+.deck-card-layer:nth-child(3) { 
+  transform: translate(-12px, -12px); 
+  box-shadow: 8px 8px 20px rgba(0,0,0,0.65);
+}
+
+/* 공통 카드 슬롯 (팀 카드 슬롯과 통일) */
+.common-card-slot {
+  width: 120px;
+  height: 170px;
+  border: 2px dashed rgba(201, 146, 42, 0.25);
+  border-radius: 14px;
+  background: rgba(0,0,0,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: inset 0 3px 10px rgba(0,0,0,0.35);
+  z-index: 5;
+}
+.slot-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: rgba(201, 146, 42, 0.4);
+  font-size: 0.8rem;
+  font-weight: 700;
+  gap: 0.6rem;
+}
+
+/* 정렬된 공통 카드 비주얼 */
+.common-card {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  background: var(--cream);
+  border: 2.5px solid var(--gold);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+  animation: card-pop 0.35s cubic-bezier(.34,1.56,.64,1);
+}
+.common-card-emoji {
+  font-size: 3.8rem;
+  margin-bottom: 0.3rem;
+  line-height: 1;
+}
+.common-card-name {
+  font-size: 0.82rem;
+  font-weight: 900;
+  color: #1A0F00;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  text-align: center;
+  font-family: 'Noto Serif KR', serif;
+  padding: 0 4px;
+}
+.common-card.type-special {
+  border-color: #9B59B6;
+  background: #F4ECF7;
+}
+.common-card.type-team {
+  border-color: #E74C3C;
+  background: #FDEDEC;
+}
+
+/* ── 양옆 팀별 패널 ── */
+.team-panel {
+  background: rgba(26, 15, 0, 0.45);
+  border: 2px solid var(--wood-dark);
+  border-radius: 18px;
+  padding: 0.8rem 0.6rem 1rem;
+  backdrop-filter: blur(8px);
+  text-align: center;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.team-panel.active-turn {
+  border-color: var(--gold);
+  box-shadow: 0 0 20px rgba(201, 146, 42, 0.32);
+  background: rgba(43, 24, 9, 0.55);
+  transform: scale(1.03);
+}
+.team-name-title {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 0.7rem;
+  letter-spacing: 0.08em;
+  transition: color 0.3s;
+}
+.team-panel.active-turn .team-name-title {
+  color: var(--gold-light);
+  text-shadow: 0 0 8px rgba(232, 184, 75, 0.35);
+}
+
+.team-slots-container {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+}
+
+/* 크게 키운 미니 카드 슬롯 */
+.mini-card-slot {
+  width: 95px;
+  height: 135px;
+  border: 2px dashed rgba(201, 146, 42, 0.22);
+  border-radius: 10px;
+  background: rgba(0,0,0,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.3s;
+  box-shadow: inset 0 3px 10px rgba(0,0,0,0.35);
+}
+.mini-card {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  background: var(--cream);
+  border: 2.2px solid var(--gold);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem;
+  animation: card-pop 0.35s cubic-bezier(.34,1.56,.64,1);
+}
+.mini-card-emoji {
+  font-size: 2.8rem;
+  margin-bottom: 0.2rem;
+  line-height: 1;
+}
+.mini-card-name {
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: #1A0F00;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  text-align: center;
+  font-family: 'Noto Serif KR', serif;
+  padding: 0 2px;
+}
+.mini-card.type-special {
+  border-color: #9B59B6;
+  background: #F4ECF7;
+}
+.mini-card.type-team {
+  border-color: #E74C3C;
+  background: #FDEDEC;
+}
+
+/* ── 중앙 드로우 하이라이트 오버레이 ── */
+.draw-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.draw-overlay.show {
+  display: flex;
+  opacity: 1;
+}
+
+/* 날아와서 크게 3D 플립되는 하이라이트 카드 */
+.draw-card {
+  position: relative;
+  width: 290px;
+  height: 410px;
+  perspective: 1200px;
+  z-index: 105;
+  transform-style: preserve-3d;
+  opacity: 0;
+  /* 드로우 궤적 트랜지션 */
+  transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.7s ease;
+}
+
+.draw-card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.draw-card-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.draw-card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.85);
+}
+
+.draw-card-back {
+  background: linear-gradient(135deg, #1A3A5C 0%, #0D2135 100%);
+  border: 4.5px solid #3A6A9C;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.draw-card-back .db-emoji { font-size: 5.5rem; opacity: 0.18; }
+.draw-card-back .db-text { font-family: 'Noto Serif KR', serif; font-size: 1.7rem; color: rgba(255,255,255,0.12); letter-spacing: 0.15em; }
+
+.draw-card-front {
+  background: var(--cream);
+  border: 4.5px solid var(--gold);
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.8rem 1.2rem;
+  text-align: center;
+  position: relative;
+}
+.draw-card-front .df-emoji { font-size: 6rem; line-height: 1; margin-bottom: 0.8rem; }
+.draw-card-front .df-type {
+  font-size: 0.78rem; font-weight: 700; border-radius: 6px; padding: 0.2rem 0.6rem;
+  letter-spacing: 0.06em; margin-bottom: 0.6rem; display: inline-block;
+}
+.draw-card-front .df-name {
+  font-family: 'Noto Serif KR', serif; font-size: 1.75rem; font-weight: 900;
+  color: #1A0F00; margin-bottom: 0.7rem; line-height: 1.25;
+}
+.draw-card-front .df-desc { font-size: 0.95rem; color: #5C3D1E; line-height: 1.5; max-width: 220px; }
+.draw-card-front .df-code {
+  position: absolute; bottom: 12px; right: 14px;
+  font-size: 0.65rem; color: rgba(90,60,20,0.35); font-weight: 700;
+}
+
+/* ── 슬롯 배치 비행 연출 클래스 (Fly-away to slot) ── */
+.draw-card.fly-to-left {
+  transform: translate(-600px, 200px) scale(0.12) rotate(-25deg) !important;
+  opacity: 0 !important;
+}
+.draw-card.fly-to-right {
+  transform: translate(600px, 200px) scale(0.12) rotate(25deg) !important;
+  opacity: 0 !important;
+}
+.draw-card.fly-to-common {
+  transform: translate(175px, 50px) scale(0.25) rotate(15deg) !important;
+  opacity: 0 !important;
+}
 
 /* 연결 상태 표시 */
 .conn-status{
-  position:absolute;bottom:1.4rem;right:1.5rem;
-  font-size:.65rem;color:rgba(255,255,255,.25);z-index:10;
+  position:absolute;bottom:1.5rem;right:1.5rem;
+  font-size:.6rem;color:rgba(255,255,255,.2);z-index:10;
 }
 </style>
 </head>
 <body>
 
 <div class="live-badge">● LIVE</div>
-<div class="spotlight"></div>
 
-<div class="bc-header">
-  <div class="bc-title">BABO TIME</div>
-  <div class="bc-round" id="bc-round">라운드 1</div>
-</div>
-
-<!-- 대기 -->
-<div id="waiting">
-  <div class="wait-icon">🃏</div>
-  <div class="wait-text">운영진이 카드를 준비 중...</div>
-</div>
-
-<!-- 카드 스테이지 -->
-<div id="card-stage" style="display:none;">
-  <div class="card-flipper">
-    <div class="card-inner" id="card-inner">
-      <div class="card-face card-back">
-        <div class="b-emoji">🃏</div>
-        <div class="b-text">바보타임</div>
+<!-- ── 메인 3컬럼 레이아웃 ── -->
+<div class="main-layout">
+  <!-- 좌측 컬럼 (1~3팀) -->
+  <div class="side-column" id="left-teams">
+    <!-- 1~3팀 보드가 동적 로드됩니다 -->
+  </div>
+  
+  <!-- 중앙 컬럼 -->
+  <div class="center-column">
+    <div class="bc-header-wrap">
+      <div class="bc-title">BABO TIME</div>
+      <div class="bc-round" id="bc-round">라운드 1</div>
+      <div class="turn-order-container" id="turn-order-container">
+        <!-- 팀 순서 칩들이 로드됩니다 -->
       </div>
-      <div class="card-face card-front">
-        <span class="f-emoji" id="f-emoji"></span>
-        <span class="f-type" id="f-type"></span>
-        <div class="f-name" id="f-name"></div>
-        <div class="f-desc" id="f-desc"></div>
-        <div class="f-code" id="f-code"></div>
+    </div>
+    
+    <!-- 중앙 메인 보드 -->
+    <div class="board-center">
+      <!-- 카드 덱 -->
+      <div class="deck-container">
+        <div class="deck-card-layer"></div>
+        <div class="deck-card-layer"></div>
+        <div class="deck-card-layer" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.4rem;">
+          <div style="font-size:2.8rem;">🃏</div>
+          <div style="font-family:'Noto Serif KR',serif; font-size:1.1rem; color:rgba(255,255,255,0.18); letter-spacing:0.12em; font-weight:bold; text-align:center;">
+            바보게임<br><span style="font-size:0.65rem; opacity:0.8;">CARD DECK</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 공통 카드 슬롯 -->
+      <div class="common-card-slot" id="common-slot-wrap">
+        <div class="slot-empty">
+          <div style="font-size:2.4rem; opacity:0.25;">📢</div>
+          <div style="text-align:center; font-size:0.75rem; letter-spacing:0.04em;">공통 규칙<br>카드 슬롯</div>
+        </div>
       </div>
     </div>
   </div>
-  <div class="card-info">
-    <div class="info-name" id="info-name"></div>
-    <div class="info-desc" id="info-desc"></div>
+
+  <!-- 우측 컬럼 (4~6팀) -->
+  <div class="side-column" id="right-teams">
+    <!-- 4~6팀 보드가 동적 로드됩니다 -->
   </div>
 </div>
 
-<div id="active-rules"></div>
+<!-- ── 중앙 드로우 하이라이트 오버레이 ── -->
+<div class="draw-overlay" id="draw-overlay">
+  <div class="draw-card" id="draw-card">
+    <div class="draw-card-inner" id="draw-card-inner">
+      <div class="draw-card-face draw-card-back">
+        <div class="db-emoji">🃏</div>
+        <div class="db-text">바보타임</div>
+      </div>
+      <div class="draw-card-face draw-card-front">
+        <span class="df-emoji" id="df-emoji"></span>
+        <span class="df-type" id="df-type"></span>
+        <div class="df-name" id="df-name"></div>
+        <div class="df-desc" id="df-desc"></div>
+        <div class="df-code" id="df-code"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="conn-status" id="conn-status">운영 패널 연결 대기 중...</div>
 
 <script>
 let lastTs = 0;
-let activeRules = [];
+let _lastRaw = '';
+let activeCommonCardCode = '';
+
+// 내부 렌더링 상태 캐싱 (비행 연출 시 렌더링 지연을 위함)
+let renderedState = null;
+
+// 이벤트 트래킹용 타임스탬프
+let processedHighlightTs = 0;
+let processedPlacementTs = 0;
 
 /* ── localStorage 변화 감지 ── */
 window.addEventListener('storage', e => {
@@ -223,8 +531,7 @@ window.addEventListener('storage', e => {
   } catch(err) {}
 });
 
-/* ── 같은 탭에서 테스트할 경우 대비 (폴링 방식 병행) ── */
-let _lastRaw = '';
+/* ── 폴링 동기화 ── */
 setInterval(() => {
   const raw = localStorage.getItem('babo_broadcast');
   if (!raw || raw === _lastRaw) return;
@@ -235,69 +542,238 @@ setInterval(() => {
     lastTs = data.ts;
     handleMessage(data);
   } catch(err) {}
-}, 300);
+}, 250);
 
 function handleMessage(data) {
   document.getElementById('conn-status').textContent = '✅ 운영 패널 연결됨';
-
-  if (data.type === 'round') {
-    document.getElementById('bc-round').textContent = `라운드 ${data.round}`;
-    return;
-  }
-
-  if (data.type === 'card') {
-    document.getElementById('bc-round').textContent = `라운드 ${data.round}`;
-    activeRules = data.activeRules || [];
-    showCard(data.card);
+  if (data.type === 'sync_state' && data.state) {
+    syncGameState(data.state);
   }
 }
 
-function showCard(card) {
-  // 카드 데이터 채우기
-  document.getElementById('f-emoji').textContent = card.emoji;
-  document.getElementById('f-name').textContent = card.name;
-  document.getElementById('f-desc').textContent = card.desc;
-  document.getElementById('f-code').textContent = card.code;
-  document.getElementById('info-name').textContent = card.name;
-  document.getElementById('info-desc').textContent = card.desc;
-
-  const ft = document.getElementById('f-type');
-  ft.textContent = (TYPE_META[card.type] && TYPE_META[card.type].label) || card.type;
-  ft.className = `f-type type-${card.type}`;
-
-  // 대기 화면 숨기기
-  document.getElementById('waiting').classList.add('hidden');
-
-  // 카드 스테이지 표시
-  const stage = document.getElementById('card-stage');
-  stage.style.display = 'flex';
-
-  // 뒤집기 리셋 후 애니메이션
-  const inner = document.getElementById('card-inner');
-  inner.classList.remove('flipped');
-  document.getElementById('info-name').classList.remove('show');
-  document.getElementById('info-desc').classList.remove('show');
-
-  // 한 프레임 뒤에 플립
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        inner.classList.add('flipped');
-        setTimeout(() => {
-          document.getElementById('info-name').classList.add('show');
-          document.getElementById('info-desc').classList.add('show');
-        }, 400);
-      }, 80);
-    });
+// 통합 동기화 처리
+function syncGameState(state) {
+  // 1. 라운드 렌더링
+  document.getElementById('bc-round').textContent = `라운드 ${state.round}`;
+  
+  // 2. 팀 게임 순서 바 렌더링
+  const orderContainer = document.getElementById('turn-order-container');
+  orderContainer.innerHTML = '';
+  state.turnOrder.forEach((team, idx) => {
+    const chip = document.createElement('div');
+    chip.className = idx === 0 ? 'turn-team-chip active' : 'turn-team-chip';
+    chip.textContent = team;
+    orderContainer.appendChild(chip);
+    if (idx < state.turnOrder.length - 1) {
+      const arrow = document.createElement('span');
+      arrow.className = 'turn-arrow';
+      arrow.textContent = '➔';
+      orderContainer.appendChild(arrow);
+    }
   });
 
-  // 하단 규칙 칩
-  const rulesEl = document.getElementById('active-rules');
-  rulesEl.innerHTML = activeRules.map((r, i) => `
-    <div class="rule-chip ${r.code === card.code ? 'new' : ''}">
-      ${r.emoji} ${r.name}
-    </div>
-  `).join('');
+  // 3. 드로우 하이라이트 연출 처리
+  if (state.highlightCard && state.highlightCard.ts > processedHighlightTs) {
+    processedHighlightTs = state.highlightCard.ts;
+    triggerDrawAnimation(state.highlightCard.card);
+  }
+
+  // 4. 슬롯 배치 연출 (lastPlaced) 처리
+  if (state.lastPlaced && state.lastPlaced.ts > processedPlacementTs) {
+    processedPlacementTs = state.lastPlaced.ts;
+    triggerPlacementAnimation(state.lastPlaced, state);
+  } else {
+    // 하이라이트/배치 연출 중이 아닐 때만 보드를 일반 동기화 업데이트함
+    const isHighlighting = document.getElementById('draw-overlay').classList.contains('show') && 
+                           !document.getElementById('draw-card').className.includes('fly-to');
+    if (!isHighlighting) {
+      renderBoardGrid(state);
+    }
+  }
+}
+
+// ── 카드 덱에서 카드가 뽑히는 3D 드로우 애니메이션 ──
+function triggerDrawAnimation(card) {
+  const overlay = document.getElementById('draw-overlay');
+  const drawCard = document.getElementById('draw-card');
+  const inner = document.getElementById('draw-card-inner');
+
+  // 데이터 바인딩
+  document.getElementById('df-emoji').textContent = card.emoji;
+  document.getElementById('df-name').textContent = card.name;
+  document.getElementById('df-desc').textContent = card.desc;
+  document.getElementById('df-code').textContent = card.code;
+  const t = document.getElementById('df-type');
+  t.textContent = TYPE_META[card.type].label;
+  t.className = `df-type type-${card.type}`;
+
+  // 모션 초기화
+  drawCard.className = 'draw-card';
+  inner.classList.remove('flipped');
+  overlay.className = 'draw-overlay';
+  overlay.style.display = 'flex';
+
+  // 카드 덱 위치 계산
+  const deck = document.querySelector('.deck-container');
+  const deckRect = deck.getBoundingClientRect();
+  const overlayRect = overlay.getBoundingClientRect();
+
+  // 덱의 절대좌표 기준 오버레이 중앙과의 거리 계산
+  const startX = deckRect.left + deckRect.width/2 - (overlayRect.left + overlayRect.width/2);
+  const startY = deckRect.top + deckRect.height/2 - (overlayRect.top + overlayRect.height/2);
+
+  // 카드를 최초에 덱 뭉치 위치로 설정
+  drawCard.style.transition = 'none';
+  drawCard.style.transform = `translate(${startX}px, ${startY}px) scale(0.35) rotate(-15deg)`;
+  drawCard.style.opacity = '0';
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      // 오버레이 어두워짐
+      overlay.classList.add('show');
+      
+      // 트랜지션 활성화 후 중앙으로 날아옴
+      drawCard.style.transition = 'transform 0.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.7s ease';
+      drawCard.style.transform = 'translate(0, 0) scale(1) rotate(0deg)';
+      drawCard.style.opacity = '1';
+
+      // 중앙에 안착할 무렵 3D 앞면으로 플립
+      setTimeout(() => {
+        inner.classList.add('flipped');
+      }, 550);
+    });
+  });
+}
+
+// ── 슬롯 배치에 따른 비행 소멸(Fly-to-slot) 애니메이션 ──
+function triggerPlacementAnimation(placement, state) {
+  const overlay = document.getElementById('draw-overlay');
+  const drawCard = document.getElementById('draw-card');
+
+  // 오버레이가 켜져 있는 상태라면 날아가는 연출 진행
+  if (overlay.classList.contains('show')) {
+    const target = placement.target;
+    
+    // 배치 대상의 방향 감지
+    let flyClass = 'fly-to-common';
+    if (target === 'common') {
+      flyClass = 'fly-to-common';
+    } else {
+      // 1~3팀은 왼쪽 컬럼, 4~6팀은 오른쪽 컬럼
+      const isLeftColumn = ['1팀', '2팀', '3팀'].includes(target);
+      flyClass = isLeftColumn ? 'fly-to-left' : 'fly-to-right';
+    }
+
+    // 카드 비행 트랜지션 시작
+    drawCard.classList.add(flyClass);
+    
+    // 오버레이 암전 제거
+    overlay.style.transition = 'opacity 0.6s ease';
+    overlay.classList.remove('show');
+
+    // 비행 완료 시점에 오버레이 끄고 그리드에 팝하며 안착시킴
+    setTimeout(() => {
+      overlay.style.display = 'none';
+      drawCard.className = 'draw-card';
+      renderBoardGrid(state, placement); // 배치 타겟 팝 애니메이션 트리거
+    }, 600);
+  } else {
+    // 오버레이가 없었다면 그냥 즉시 렌더링
+    renderBoardGrid(state);
+  }
+}
+
+// ── 전체 3컬럼 보드판 그리드 렌더링 ──
+function renderBoardGrid(state, popTarget = null) {
+  renderedState = state;
+  
+  // 1. 공통 카드 렌더링 (디자인 통일 버전)
+  const commonSlot = document.getElementById('common-slot-wrap');
+  if (state.commonCard) {
+    activeCommonCardCode = state.commonCard.code;
+    const shouldPop = popTarget && popTarget.target === 'common';
+    
+    commonSlot.innerHTML = `
+      <div class="common-card type-${state.commonCard.type}" style="${shouldPop ? 'animation: card-pop 0.45s cubic-bezier(.34,1.8,.64,1);' : ''}">
+        <div class="common-card-emoji">${state.commonCard.emoji}</div>
+        <div class="common-card-name">${state.commonCard.name}</div>
+      </div>
+    `;
+  } else {
+    activeCommonCardCode = '';
+    commonSlot.innerHTML = `
+      <div class="slot-empty">
+        <div style="font-size:2.4rem; opacity:0.25;">📢</div>
+        <div style="text-align:center; font-size:0.75rem; letter-spacing:0.04em;">공통 규칙<br>카드 슬롯</div>
+      </div>
+    `;
+  }
+
+  // 2. 좌우 3팀씩 분할하여 렌더링
+  const leftTeamsContainer = document.getElementById('left-teams');
+  const rightTeamsContainer = document.getElementById('right-teams');
+  
+  leftTeamsContainer.innerHTML = '';
+  rightTeamsContainer.innerHTML = '';
+
+  // 정해진 순서 중 앞의 3팀은 왼쪽, 뒤의 3팀은 오른쪽에 배치
+  state.turnOrder.forEach((team, idx) => {
+    const isLeftColumn = idx < 3;
+    const isCurrentTurn = idx === 0;
+    
+    const teamPanel = document.createElement('div');
+    teamPanel.className = isCurrentTurn ? 'team-panel active-turn' : 'team-panel';
+    
+    const title = document.createElement('div');
+    title.className = 'team-name-title';
+    title.textContent = isCurrentTurn ? `🔥 ${team}` : team;
+    teamPanel.appendChild(title);
+    
+    const slotsContainer = document.createElement('div');
+    slotsContainer.className = 'team-slots-container';
+    
+    for (let i = 0; i < 2; i++) {
+      const card = state.teamSlots[team][i];
+      const slot = document.createElement('div');
+      slot.className = 'mini-card-slot';
+      
+      if (card) {
+        // 방금 꽂힌 타겟 카드인 경우 애니메이션 효과 적용
+        const shouldPop = popTarget && popTarget.target === team && popTarget.slotIdx === i;
+        
+        const miniCard = document.createElement('div');
+        miniCard.className = `mini-card type-${card.type}`;
+        if (shouldPop) {
+          miniCard.style.animation = 'card-pop 0.45s cubic-bezier(.34,1.8,.64,1)';
+        }
+        miniCard.innerHTML = `
+          <div class="mini-card-emoji">${card.emoji}</div>
+          <div class="mini-card-name">${card.name}</div>
+        `;
+        slot.appendChild(miniCard);
+      }
+      slotsContainer.appendChild(slot);
+    }
+    
+    teamPanel.appendChild(slotsContainer);
+    
+    if (isLeftColumn) {
+      leftTeamsContainer.appendChild(teamPanel);
+    } else {
+      rightTeamsContainer.appendChild(teamPanel);
+    }
+  });
+}
+
+// 최초 로드 시 기존 상태 로드
+const initRaw = localStorage.getItem('babo_broadcast');
+if (initRaw) {
+  try {
+    const data = JSON.parse(initRaw);
+    if (data && data.type === 'sync_state' && data.state) {
+      syncGameState(data.state);
+    }
+  } catch(e) {}
 }
 </script>
 </body>
