@@ -72,6 +72,7 @@ body::before{
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0;
+  position: relative;
 }
 
 /* ── 헤더 영역 ── */
@@ -82,6 +83,7 @@ body::before{
   flex-direction: column;
   align-items: center;
   gap: 0.2rem;
+  z-index: 5;
 }
 .bc-title{
   font-family:'Noto Serif KR',serif;font-size:1.6rem;
@@ -140,6 +142,7 @@ body::before{
   gap: 4rem;
   flex: 1;
   width: 100%;
+  z-index: 4;
 }
 
 /* 카드 덱 */
@@ -231,6 +234,66 @@ body::before{
 .common-card.type-team {
   border-color: #E74C3C;
   background: #FDEDEC;
+}
+
+/* ── 중앙 차례 대형 알림판 ── */
+.turn-intro-wrap {
+  position: absolute;
+  top: 52%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  text-align: center;
+  z-index: 10;
+  transition: opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1), transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  opacity: 0;
+  pointer-events: none;
+}
+.turn-intro-wrap.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+}
+.turn-intro-panel {
+  background: rgba(16, 9, 0, 0.72);
+  border: 2px solid var(--gold);
+  border-radius: 28px;
+  padding: 2.2rem 4rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 30px rgba(201, 146, 42, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  animation: panel-glow 2.5s infinite alternate;
+}
+@keyframes panel-glow {
+  from { box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 20px rgba(201, 146, 42, 0.15); }
+  to { box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 40px rgba(201, 146, 42, 0.35); }
+}
+.turn-intro-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+.turn-intro-team {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 3.2rem;
+  font-weight: 900;
+  color: var(--gold-light);
+  text-shadow: 0 3px 15px rgba(0,0,0,0.6);
+  animation: float-team 3s ease-in-out infinite;
+}
+@keyframes float-team {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-8px) scale(1.02); }
+}
+.turn-intro-action {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--cream);
+  letter-spacing: 0.05em;
 }
 
 /* ── 양옆 팀별 패널 ── */
@@ -479,6 +542,15 @@ body::before{
         </div>
       </div>
     </div>
+    
+    <!-- ── 중앙 차례 대형 알림판 ── -->
+    <div class="turn-intro-wrap" id="turn-intro">
+      <div class="turn-intro-panel">
+        <div class="turn-intro-label">NEXT TURN</div>
+        <div class="turn-intro-team" id="intro-team-name">1팀</div>
+        <div class="turn-intro-action">차례입니다! 미션을 준비하세요.</div>
+      </div>
+    </div>
   </div>
 
   <!-- 우측 컬럼 (4~6팀) -->
@@ -556,13 +628,13 @@ function syncGameState(state) {
   // 1. 라운드 렌더링
   document.getElementById('bc-round').textContent = `라운드 ${state.round}`;
   
-  // 2. 팀 게임 순서 바 렌더링
+  // 2. 팀 게임 순서 바 렌더링 (동적 팀 이름 매핑 적용)
   const orderContainer = document.getElementById('turn-order-container');
   orderContainer.innerHTML = '';
   state.turnOrder.forEach((team, idx) => {
     const chip = document.createElement('div');
     chip.className = idx === 0 ? 'turn-team-chip active' : 'turn-team-chip';
-    chip.textContent = team;
+    chip.textContent = (state.teamNames && state.teamNames[team]) || team;
     orderContainer.appendChild(chip);
     if (idx < state.turnOrder.length - 1) {
       const arrow = document.createElement('span');
@@ -572,22 +644,48 @@ function syncGameState(state) {
     }
   });
 
-  // 3. 드로우 하이라이트 연출 처리
+  // 3. 중앙 차례 안내 텍스트 렌더링 (동적 팀 이름 매핑 적용)
+  const nextTeam = state.turnOrder && state.turnOrder[0] ? state.turnOrder[0] : '';
+  const nextTeamDisplayName = (state.teamNames && state.teamNames[nextTeam]) || nextTeam;
+  document.getElementById('intro-team-name').textContent = nextTeamDisplayName;
+
+  // 초기화/리셋으로 인해 하이라이트가 취소 또는 사라진 경우 방어 로직
+  if (!state.highlightCard) {
+    processedHighlightTs = 0;
+  }
+  if (!state.lastPlaced) {
+    processedPlacementTs = 0;
+  }
+
+  // 4. 드로우 하이라이트 연출 처리
   if (state.highlightCard && state.highlightCard.ts > processedHighlightTs) {
     processedHighlightTs = state.highlightCard.ts;
+    // 중앙 차례 안내 페이드아웃
+    document.getElementById('turn-intro').classList.remove('show');
     triggerDrawAnimation(state.highlightCard.card);
   }
 
-  // 4. 슬롯 배치 연출 (lastPlaced) 처리
+  // 5. 슬롯 배치 연출 (lastPlaced) 처리
   if (state.lastPlaced && state.lastPlaced.ts > processedPlacementTs) {
     processedPlacementTs = state.lastPlaced.ts;
+    // 차례 안내 숨김 유지
+    document.getElementById('turn-intro').classList.remove('show');
     triggerPlacementAnimation(state.lastPlaced, state);
   } else {
-    // 하이라이트/배치 연출 중이 아닐 때만 보드를 일반 동기화 업데이트함
-    const isHighlighting = document.getElementById('draw-overlay').classList.contains('show') && 
-                           !document.getElementById('draw-card').className.includes('fly-to');
+    // 하이라이트/배치 연출 중이 아닐 때
+    const isHighlighting = document.getElementById('draw-overlay').classList.contains('show') ||
+                           (state.highlightCard !== null);
+    
     if (!isHighlighting) {
       renderBoardGrid(state);
+      // 오버레이가 안 켜져 있으면 중앙 차례 안내 패널 노출!
+      document.getElementById('turn-intro').classList.add('show');
+    } else if (state.highlightCard === null) {
+      // 혹시 하이라이트가 취소된 경우
+      document.getElementById('draw-overlay').style.display = 'none';
+      document.getElementById('draw-overlay').classList.remove('show');
+      renderBoardGrid(state);
+      document.getElementById('turn-intro').classList.add('show');
     }
   }
 }
@@ -629,7 +727,7 @@ function triggerDrawAnimation(card) {
 
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      // 오버레이 어두워짐
+      // 오버레이 암전
       overlay.classList.add('show');
       
       // 트랜지션 활성화 후 중앙으로 날아옴
@@ -650,7 +748,6 @@ function triggerPlacementAnimation(placement, state) {
   const overlay = document.getElementById('draw-overlay');
   const drawCard = document.getElementById('draw-card');
 
-  // 오버레이가 켜져 있는 상태라면 날아가는 연출 진행
   if (overlay.classList.contains('show')) {
     const target = placement.target;
     
@@ -659,7 +756,6 @@ function triggerPlacementAnimation(placement, state) {
     if (target === 'common') {
       flyClass = 'fly-to-common';
     } else {
-      // 1~3팀은 왼쪽 컬럼, 4~6팀은 오른쪽 컬럼
       const isLeftColumn = ['1팀', '2팀', '3팀'].includes(target);
       flyClass = isLeftColumn ? 'fly-to-left' : 'fly-to-right';
     }
@@ -676,10 +772,16 @@ function triggerPlacementAnimation(placement, state) {
       overlay.style.display = 'none';
       drawCard.className = 'draw-card';
       renderBoardGrid(state, placement); // 배치 타겟 팝 애니메이션 트리거
+      
+      // 턴 로테이션 후 새로운 0번째 팀을 중앙 차례 안내판으로 노출!
+      const nextTeam = state.turnOrder && state.turnOrder[0] ? state.turnOrder[0] : '';
+      const nextTeamDisplayName = (state.teamNames && state.teamNames[nextTeam]) || nextTeam;
+      document.getElementById('intro-team-name').textContent = nextTeamDisplayName;
+      document.getElementById('turn-intro').classList.add('show');
     }, 600);
   } else {
-    // 오버레이가 없었다면 그냥 즉시 렌더링
     renderBoardGrid(state);
+    document.getElementById('turn-intro').classList.add('show');
   }
 }
 
@@ -687,7 +789,7 @@ function triggerPlacementAnimation(placement, state) {
 function renderBoardGrid(state, popTarget = null) {
   renderedState = state;
   
-  // 1. 공통 카드 렌더링 (디자인 통일 버전)
+  // 1. 공통 카드 렌더링
   const commonSlot = document.getElementById('common-slot-wrap');
   if (state.commonCard) {
     activeCommonCardCode = state.commonCard.code;
@@ -716,17 +818,17 @@ function renderBoardGrid(state, popTarget = null) {
   leftTeamsContainer.innerHTML = '';
   rightTeamsContainer.innerHTML = '';
 
-  // 정해진 순서 중 앞의 3팀은 왼쪽, 뒤의 3팀은 오른쪽에 배치
   state.turnOrder.forEach((team, idx) => {
     const isLeftColumn = idx < 3;
     const isCurrentTurn = idx === 0;
+    const displayName = (state.teamNames && state.teamNames[team]) || team;
     
     const teamPanel = document.createElement('div');
     teamPanel.className = isCurrentTurn ? 'team-panel active-turn' : 'team-panel';
     
     const title = document.createElement('div');
     title.className = 'team-name-title';
-    title.textContent = isCurrentTurn ? `🔥 ${team}` : team;
+    title.textContent = isCurrentTurn ? `🔥 ${displayName}` : displayName;
     teamPanel.appendChild(title);
     
     const slotsContainer = document.createElement('div');
@@ -738,7 +840,6 @@ function renderBoardGrid(state, popTarget = null) {
       slot.className = 'mini-card-slot';
       
       if (card) {
-        // 방금 꽂힌 타겟 카드인 경우 애니메이션 효과 적용
         const shouldPop = popTarget && popTarget.target === team && popTarget.slotIdx === i;
         
         const miniCard = document.createElement('div');
