@@ -54,28 +54,55 @@ body{font-family:'Noto Sans KR',sans-serif;background:#0f0800;color:var(--cream)
   color: #fff;
 }
 
-.op-body{display:grid;grid-template-columns:380px 1fr;min-height:calc(100vh - 60px);}
+.op-body{display:grid;grid-template-columns:400px 1fr;min-height:calc(100vh - 60px);}
 
 /* ── 왼쪽 사이드바 ── */
-.op-left{background:#140900;border-right:2px solid var(--wood-dark);padding:1.2rem;display:flex;flex-direction:column;gap:1rem;overflow-y:auto;max-height:calc(100vh - 60px);}
+.op-left{background:#140900;border-right:2px solid var(--wood-dark);padding:1rem;display:flex;flex-direction:column;gap:0.8rem;overflow-y:auto;max-height:calc(100vh - 60px);}
 .section-title{font-size:.68rem;font-weight:700;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;}
 
-.panel-box{background:#1A0F00;border:1.5px solid var(--wood-dark);border-radius:12px;padding:1rem;}
+.panel-box{background:#1A0F00;border:1.5px solid var(--wood-dark);border-radius:12px;padding:0.85rem;}
 
-/* 팀 순서 설정 */
-.team-order-list{display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.6rem;}
-.team-order-item{
-  display:flex;align-items:center;justify-content:space-between;
-  background:#110700;border:1px solid var(--wood-dark);border-radius:6px;
-  padding:0.35rem 0.6rem;font-size:0.75rem;
+/* 통합 제어 보드 테이블화 */
+.team-board-list{display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.6rem;}
+.team-row{
+  display:flex;align-items:center;
+  background:#110700;border:1px solid var(--wood-dark);border-radius:8px;
+  padding:0.4rem 0.5rem;gap:0.45rem;
 }
-.team-order-name{font-weight:700;color:var(--cream);}
-.team-order-ctrls{display:flex;gap:0.25rem;}
+.tr-num{font-size:0.75rem;color:var(--gold);font-weight:bold;width:15px;text-align:center;}
+.tr-name-input{
+  background:transparent;border:none;border-bottom:1px dashed var(--wood-mid);
+  color:var(--cream);font-family:inherit;font-size:0.75rem;font-weight:bold;
+  outline:none;width:75px;padding:0.1rem 0.2rem;
+}
+.tr-slots{display:flex;gap:3px;flex:1;}
+.slot-container{display:flex;flex:1;gap:1px;}
+.btn-slot-target{
+  flex:1;padding:0.35rem 0.4rem;font-size:0.65rem;border-radius:4px;
+  border:1px solid var(--wood-dark);background:#0d0500;color:rgba(255,255,255,0.35);
+  cursor:pointer;transition:all 0.15s;text-align:center;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.btn-slot-target:hover{border-color:var(--gold);color:var(--cream);}
+.btn-slot-target.active{
+  background:rgba(201,146,42,0.12);border-color:var(--gold);color:var(--gold-light);
+  font-weight:bold;
+}
+.btn-slot-clear{
+  background:rgba(192, 57, 43, 0.12);border:1px solid var(--red);color:#E74C3C;
+  border-radius:4px;width:18px;height:18px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:0.55rem;flex-shrink:0;
+  transition:all 0.15s;align-self:center;
+}
+.btn-slot-clear:hover{background:var(--red);color:#fff;}
+
+.tr-ctrls{display:flex;gap:1px;width:34px;justify-content:flex-end;}
 .btn-order-move{
   background:transparent;border:none;color:var(--gold);cursor:pointer;
-  font-size:0.75rem;padding:0.1rem 0.3rem;font-weight:bold;
+  font-size:0.7rem;padding:0.1rem 0.2rem;font-weight:bold;
 }
 .btn-order-move:hover{color:var(--gold-light);}
+
 .btn-shuffle{
   padding:0.45rem;background:transparent;border:1.5px dashed var(--gold);
   color:var(--gold-light);border-radius:8px;font-size:0.72rem;font-weight:700;
@@ -83,8 +110,45 @@ body{font-family:'Noto Sans KR',sans-serif;background:#0f0800;color:var(--cream)
 }
 .btn-shuffle:hover{background:rgba(201,146,42,0.1);}
 
+/* 공통 슬롯 */
+.common-slot-container {
+  display: flex; gap: 4px; align-items: center; width: 100%;
+}
+.btn-slot-common{
+  flex: 1; padding:0.55rem; font-size:0.75rem; border-radius:8px;
+  border:1.5px solid var(--gold); background:#110700; color:rgba(255,255,255,0.4);
+  cursor:pointer; transition:all 0.15s; text-align:center; font-weight:bold;
+}
+.btn-slot-common:hover{background:rgba(201,146,42,0.08); color:var(--cream);}
+.btn-slot-common.active{
+  background:rgba(201,146,42,0.22); color:var(--gold-light); border-color:var(--gold-light); box-shadow:0 0 10px rgba(201,146,42,0.15);
+}
+
+/* 카드 제어 센터 통합 미리보기/송출 */
+.ctrl-center-box{min-height:115px;display:flex;flex-direction:column;justify-content:center;}
+.ctrl-center-empty{text-align:center;color:rgba(160,113,79,.35);font-size:.78rem;line-height:1.6;padding:0.5rem 0;}
+.ctrl-card-info{display:flex;gap:0.7rem;align-items:center;background:#110700;padding:0.5rem;border-radius:8px;border:1px solid var(--wood-dark);}
+.cc-emoji{font-size:2.2rem;line-height:1;}
+.cc-details{flex:1;min-width:0;}
+.cc-header-row{display:flex;align-items:center;gap:0.35rem;margin-bottom:0.15rem;}
+.cc-badge{font-size:0.52rem;font-weight:700;border-radius:4px;padding:0.05rem 0.35rem;}
+.cc-name{font-family:'Noto Serif KR',serif;font-size:0.8rem;font-weight:700;color:var(--cream);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cc-desc{font-size:0.62rem;color:var(--wood-light);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.cc-actions{display:flex;gap:0.35rem;margin-top:0.45rem;}
+.btn-action-main{
+  flex:1;padding:0.35rem;font-size:0.7rem;font-weight:bold;border-radius:6px;
+  cursor:pointer;transition:all 0.15s;border:none;text-align:center;
+}
+.btn-action-main.highlight{
+  background:var(--gold);color:#1A0F00;
+}
+.btn-action-main.highlight:hover{background:var(--gold-light);}
+.btn-action-main.cancel{
+  background:rgba(192, 57, 43, 0.15);border:1.5px solid var(--red);color:#E74C3C;
+}
+.btn-action-main.cancel:hover{background:var(--red);color:#fff;}
+
 /* 검색창 */
-.code-row{display:flex;gap:.5rem;}
 .code-input{
   flex:1;background:#0f0800;border:2px solid var(--wood-mid);border-radius:8px;
   color:var(--gold-light);font-family:'Noto Sans KR',sans-serif;
@@ -93,57 +157,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:#0f0800;color:var(--cream)
 }
 .code-input:focus{border-color:var(--gold);}
 .code-input::placeholder{color:rgba(160,113,79,.35);font-size:.82rem;letter-spacing:.02em;}
-.code-hint{font-size:.68rem;color:var(--wood-light);margin-top:.4rem;}
-
-/* 미리보기 */
-.preview-wrap{display:flex;flex-direction:column;align-items:center;padding:.4rem 0;gap:.6rem;min-height:160px;justify-content:center;}
-.preview-empty{text-align:center;color:rgba(160,113,79,.35);font-size:.82rem;line-height:1.8;}
-.preview-card{
-  width:130px;background:var(--cream);border:2px solid var(--gold);
-  border-radius:12px;padding:0.9rem 0.6rem 0.8rem;text-align:center;
-  box-shadow:0 4px 15px rgba(0,0,0,.5);position:relative;
-}
-.pc-code{position:absolute;bottom:5px;right:7px;font-size:.5rem;color:rgba(90,60,20,.45);font-weight:700;}
-.pc-emoji{font-size:2rem;display:block;margin-bottom:.3rem;}
-.pc-badge{display:inline-block;font-size:.5rem;font-weight:700;border-radius:4px;padding:.1rem .4rem;margin-bottom:.2rem;}
-.pc-name{font-family:'Noto Serif KR',serif;font-size:.78rem;font-weight:700;color:#1A0F00;margin-bottom:.2rem;}
-.pc-desc{font-size:.58rem;color:#5C3D1E;line-height:1.3;}
-
-/* 송출 지정 슬롯 */
-.slot-list{display:flex;flex-direction:column;gap:0.5rem;margin-top:0.4rem;}
-.slot-row{display:flex;gap:0.4rem;align-items:center;}
-.slot-team-name{width:60px;font-size:0.75rem;font-weight:700;color:var(--gold-light);flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.slot-btn-group{display:flex;gap:0.3rem;flex:1;}
-.slot-container{display:flex;flex:1;gap:2px;}
-.btn-slot-target{
-  flex:1;padding:0.45rem 0.5rem;font-size:0.68rem;border-radius:6px;
-  border:1.5px solid var(--wood-dark);background:#110700;color:rgba(255,255,255,0.4);
-  cursor:pointer;transition:all 0.15s;text-align:left;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  display:flex;align-items:center;justify-content:space-between;
-}
-.btn-slot-target:hover{border-color:var(--gold);color:var(--cream);}
-.btn-slot-target.active{
-  background:rgba(201,146,42,0.15);border-color:var(--gold);color:var(--gold-light);
-  font-weight:bold;
-}
-.btn-slot-clear{
-  background:rgba(192, 57, 43, 0.15);border:1px solid var(--red);color:#E74C3C;
-  border-radius:6px;width:24px;height:24px;font-weight:700;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;font-size:0.6rem;flex-shrink:0;
-  transition:all 0.15s;
-}
-.btn-slot-clear:hover{background:var(--red);color:#fff;}
-
-.btn-slot-common{
-  width:100%;padding:0.6rem;font-size:0.78rem;border-radius:8px;
-  border:1.5px solid var(--gold);background:#1A0F00;color:rgba(255,255,255,0.4);
-  cursor:pointer;transition:all 0.15s;text-align:center;font-weight:bold;
-}
-.btn-slot-common:hover{background:rgba(201,146,42,0.08);color:var(--cream);}
-.btn-slot-common.active{
-  background:rgba(201,146,42,0.22);color:var(--gold-light);border-color:var(--gold-light);box-shadow:0 0 10px rgba(201,146,42,0.2);
-}
 
 /* ── 오른쪽: 카드 목록 ── */
 .op-right{padding:1.2rem;overflow-y:auto;max-height:100vh;}
@@ -205,10 +218,28 @@ body{font-family:'Noto Sans KR',sans-serif;background:#0f0800;color:var(--cream)
 <div class="op-body">
   <div class="op-left">
 
-    <!-- 팀 게임 순서 설정 -->
+    <!-- 카드 제어 센터 (통합 미리보기 / 송출) -->
+    <div class="panel-box ctrl-center-box" id="ctrl-center-box">
+      <!-- 동적 바인딩 -->
+    </div>
+
+    <!-- 공통 카드 슬롯 관리 -->
     <div class="panel-box">
-      <div class="section-title">게임 순서 설정 (이름 더블클릭/수정)</div>
-      <div class="team-order-list" id="team-order-list"></div>
+      <div class="section-title">📢 공통 카드 슬롯</div>
+      <div class="common-slot-container">
+        <button class="btn-slot-common" id="btn-slot-common" onclick="broadcastTo('common')">
+          공통 카드 슬롯에 배치 [빈 슬롯]
+        </button>
+        <button class="btn-slot-clear" id="btn-clear-common" onclick="clearSlot('common')" style="display:none; height:34px; width:34px; font-size:0.75rem;">✕</button>
+      </div>
+    </div>
+
+    <!-- 6팀 통합 관리 보드 -->
+    <div class="panel-box">
+      <div class="section-title">👥 팀별 순서 및 슬롯 관리 (이름수정 / 배치)</div>
+      <div class="team-board-list" id="team-board-list">
+        <!-- 6개 팀 데이터가 1행 단위로 렌더링됩니다 -->
+      </div>
       <div style="display:flex; gap:0.4rem; margin-top:0.35rem;">
         <button class="btn-shuffle" onclick="nextTurn()" style="flex:1.2; margin-top:0; border-style:solid; background:rgba(201,146,42,0.12);">
           ➔ 다음 차례 넘기기
@@ -217,50 +248,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:#0f0800;color:var(--cream)
           🎲 섞기
         </button>
       </div>
-    </div>
-
-    <!-- 미리보기 -->
-    <div class="panel-box">
-      <div class="section-title">선택된 카드 미리보기 (더블클릭시 크게 송출)</div>
-      <div class="preview-wrap" id="preview-wrap">
-        <div class="preview-empty" id="preview-empty">목록에서 카드를 선택해 주세요</div>
-        <div id="preview-card" style="display:none;">
-          <div class="preview-card" id="dom-preview-card">
-            <span class="pc-emoji" id="pc-emoji"></span>
-            <div class="pc-badge" id="pc-badge"></div>
-            <div class="pc-name" id="pc-name"></div>
-            <div class="pc-desc" id="pc-desc"></div>
-            <div class="pc-code" id="pc-code"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 현재 중앙 송출 현황 패널 -->
-    <div class="panel-box" id="highlight-status-box" style="display:none;">
-      <div class="section-title">📺 현재 중앙 송출 중 (대기)</div>
-      <div class="highlight-info-row" style="display:flex; align-items:center; justify-content:space-between; background:#110700; padding:0.6rem; border-radius:8px; border:1px solid var(--wood-dark);">
-        <div style="display:flex; align-items:center; gap:0.5rem;">
-          <span id="hl-emoji" style="font-size:1.5rem;"></span>
-          <div>
-            <div id="hl-name" style="font-size:0.75rem; font-weight:bold; color:var(--gold-light);"></div>
-            <div id="hl-code" style="font-size:0.58rem; color:var(--wood-light); font-weight:bold;"></div>
-          </div>
-        </div>
-        <button class="btn-slot-clear" onclick="cancelHighlight()" style="width:24px; height:24px; font-size:0.62rem; line-height:1; flex-shrink:0;">✕</button>
-      </div>
-    </div>
-
-    <!-- 송출 대상 슬롯 지정 -->
-    <div class="panel-box">
-      <div class="section-title">송출 대상 슬롯 지정 및 관리</div>
-      <div style="margin-bottom:0.6rem; display:flex; gap:2px;">
-        <button class="btn-slot-common" id="btn-slot-common" onclick="broadcastTo('common')" style="flex:1;">
-          📢 공통 카드 슬롯에 배치 [빈 슬롯]
-        </button>
-        <button class="btn-slot-clear" id="btn-clear-common" onclick="clearSlot('common')" style="display:none; height:auto; width:30px; font-size:0.75rem;">✕</button>
-      </div>
-      <div class="slot-list" id="slot-list-container"></div>
     </div>
 
   </div>
@@ -380,8 +367,6 @@ function resetGame() {
   // 선택 및 미리보기 상태 완전 초기화
   currentCard = null;
   document.querySelectorAll('.card-thumb').forEach(e=>e.classList.remove('selected'));
-  document.getElementById('preview-empty').style.display = 'block';
-  document.getElementById('preview-card').style.display = 'none';
   
   // 검색 인풋창 초기화
   const search = document.getElementById('search-input');
@@ -394,31 +379,6 @@ function resetGame() {
 }
 
 /* ── 팀 이름 및 순서 제어 ── */
-function renderTurnOrder(){
-  const container = document.getElementById('team-order-list');
-  container.innerHTML = '';
-  gameState.turnOrder.forEach((teamId, idx) => {
-    const currentName = gameState.teamNames[teamId] || teamId;
-    const item = document.createElement('div');
-    item.className = 'team-order-item';
-    item.innerHTML = `
-      <div style="display:flex; align-items:center; gap:0.4rem; flex:1;">
-        <span style="font-size:0.7rem; color:var(--gold); font-weight:bold; width:15px;">${idx + 1}</span>
-        <input type="text" class="team-name-input" value="${currentName}" 
-          onchange="updateTeamName('${teamId}', this.value)"
-          onkeydown="if(event.key==='Enter') { this.blur(); updateTeamName('${teamId}', this.value); }"
-          style="background:transparent; border:none; border-bottom:1px dashed var(--wood-mid); color:var(--cream); font-family:inherit; font-size:0.75rem; font-weight:bold; outline:none; width:80%; padding:0.1rem 0.2rem;"
-          placeholder="${teamId} 이름">
-      </div>
-      <div class="team-order-ctrls">
-        <button class="btn-order-move" onclick="moveTeam(${idx}, -1)" ${idx === 0 ? 'style="opacity:0.2; pointer-events:none;"' : ''}>▲</button>
-        <button class="btn-order-move" onclick="moveTeam(${idx}, 1)" ${idx === 5 ? 'style="opacity:0.2; pointer-events:none;"' : ''}>▼</button>
-      </div>
-    `;
-    container.appendChild(item);
-  });
-}
-
 function updateTeamName(teamId, newName) {
   const cleanName = newName.trim();
   gameState.teamNames[teamId] = cleanName || teamId;
@@ -499,22 +459,7 @@ function selectCard(code){
   const th = document.getElementById('thumb-'+code);
   if(th){th.classList.add('selected');}
   
-  // 미리보기
-  const meta = TYPE_META[card.type];
-  document.getElementById('preview-empty').style.display = 'none';
-  document.getElementById('preview-card').style.display = 'block';
-  document.getElementById('pc-emoji').textContent = card.emoji;
-  document.getElementById('pc-name').textContent = card.name;
-  document.getElementById('pc-desc').textContent = card.desc;
-  document.getElementById('pc-code').textContent = code;
-  const b = document.getElementById('pc-badge');
-  b.textContent = meta.label; b.style.background = meta.bg; b.style.color = meta.color;
-  
-  // 미리보기 카드 더블클릭 핸들러 바인딩
-  const domPreview = document.getElementById('dom-preview-card');
-  domPreview.ondblclick = () => {
-    publishHighlight(currentCard);
-  };
+  publishState();
 }
 
 /* ── 큰 카드 하이라이트 송출 ── */
@@ -602,9 +547,9 @@ function removeRule(code) {
   publishState();
 }
 
-// 슬롯 UI 그리기 및 현황 연동
-function renderSlots(){
-  const container = document.getElementById('slot-list-container');
+/* ── 통합 팀별 순서 & 슬롯 조작 보드 렌더링 ── */
+function renderTeamBoard(){
+  const container = document.getElementById('team-board-list');
   container.innerHTML = '';
   
   // 공통 카드 슬롯 상태 업데이트
@@ -623,27 +568,48 @@ function renderSlots(){
     commClear.style.display = 'none';
   }
 
-  // 6개 팀 슬롯 리스트 생성
-  gameState.turnOrder.forEach(team => {
+  // 6개 팀 1행씩 통합 렌더링
+  gameState.turnOrder.forEach((team, idx) => {
+    const currentName = gameState.teamNames[team] || team;
+    
     const row = document.createElement('div');
-    row.className = 'slot-row';
+    row.className = 'team-row';
     
-    const teamLabel = document.createElement('div');
-    teamLabel.className = 'slot-team-name';
-    teamLabel.textContent = gameState.teamNames[team] || team;
-    row.appendChild(teamLabel);
+    // 1. 순서 번호
+    const numSpan = document.createElement('span');
+    numSpan.className = 'tr-num';
+    numSpan.textContent = idx + 1;
+    row.appendChild(numSpan);
     
-    const btnGroup = document.createElement('div');
-    btnGroup.className = 'slot-btn-group';
+    // 2. 팀명 입력창
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.className = 'tr-name-input';
+    nameInput.value = currentName;
+    nameInput.placeholder = `${team} 이름`;
+    nameInput.onchange = (e) => updateTeamName(team, e.target.value);
+    nameInput.onkeydown = (e) => {
+      if (e.key === 'Enter') {
+        e.target.blur();
+        updateTeamName(team, e.target.value);
+      }
+    };
+    row.appendChild(nameInput);
+    
+    // 3. 슬롯 1 & 2
+    const slotsDiv = document.createElement('div');
+    slotsDiv.className = 'tr-slots';
     
     for (let i = 0; i < 2; i++) {
       const card = gameState.teamSlots[team][i];
+      
       const slotContainer = document.createElement('div');
       slotContainer.className = 'slot-container';
       
       const targetBtn = document.createElement('button');
       targetBtn.className = card ? 'btn-slot-target active' : 'btn-slot-target';
       targetBtn.textContent = card ? `${card.emoji} ${card.name}` : `슬롯 ${i+1}`;
+      targetBtn.title = card ? card.name : `슬롯 ${i+1}`;
       targetBtn.onclick = () => broadcastTo(team, i);
       slotContainer.appendChild(targetBtn);
       
@@ -658,41 +624,103 @@ function renderSlots(){
         slotContainer.appendChild(clearBtn);
       }
       
-      btnGroup.appendChild(slotContainer);
+      slotsDiv.appendChild(slotContainer);
     }
-    row.appendChild(btnGroup);
+    row.appendChild(slotsDiv);
+    
+    // 4. 순서 조정 화살표
+    const ctrlsDiv = document.createElement('div');
+    ctrlsDiv.className = 'tr-ctrls';
+    
+    const upBtn = document.createElement('button');
+    upBtn.className = 'btn-order-move';
+    upBtn.textContent = '▲';
+    if (idx === 0) {
+      upBtn.style.opacity = '0.2';
+      upBtn.style.pointerEvents = 'none';
+    } else {
+      upBtn.onclick = () => moveTeam(idx, -1);
+    }
+    ctrlsDiv.appendChild(upBtn);
+    
+    const downBtn = document.createElement('button');
+    downBtn.className = 'btn-order-move';
+    downBtn.textContent = '▼';
+    if (idx === 5) {
+      downBtn.style.opacity = '0.2';
+      downBtn.style.pointerEvents = 'none';
+    } else {
+      downBtn.onclick = () => moveTeam(idx, 1);
+    }
+    ctrlsDiv.appendChild(downBtn);
+    
+    row.appendChild(ctrlsDiv);
+    
     container.appendChild(row);
   });
 }
 
-function updateActiveRulesUI(){
-  // 라운드가 없어져서 이 활성화 규칙 미니 UI도 없으므로 안전 예외 처리
-  const el = document.getElementById('op-active-rules');
-  if (!el) return;
-  if(!gameState.activeRules || !gameState.activeRules.length){
-    el.innerHTML = '<span style="color:rgba(160,113,79,.35);font-size:.67rem;">없음</span>';
+// 카드 제어 센터 통합 UI 갱신 (미리보기 & 송출 대기)
+function updateControlCenterUI() {
+  const box = document.getElementById('ctrl-center-box');
+  box.innerHTML = '';
+  
+  const isHighlighting = gameState.highlightCard && gameState.highlightCard.card;
+  const targetCard = isHighlighting ? gameState.highlightCard.card : currentCard;
+  
+  if (!targetCard) {
+    box.innerHTML = `
+      <div class="section-title">🃏 카드 송출 제어</div>
+      <div class="ctrl-center-empty">
+        선택된 카드가 없습니다.<br>
+        <span style="font-size:0.68rem;opacity:0.65;">오른쪽 목록에서 클릭(선택)하거나 더블클릭(송출) 하세요.</span>
+      </div>
+    `;
+    // 헤더 상태 라이브 뱃지 원복
+    document.getElementById('live-badge').textContent = '⚫ 대기 중';
+    document.getElementById('live-badge').classList.remove('on');
     return;
   }
-  el.innerHTML = gameState.activeRules.map(r => `
-    <span class="rule-mini-chip">
-      ${r.emoji} ${r.name}
-      <button class="btn-rule-del" onclick="removeRule('${r.code}')">✕</button>
-    </span>
-  `).join('');
-}
-
-// 현재 중앙 송출 상태 패널 UI 갱신
-function updateHighlightUI() {
-  const box = document.getElementById('highlight-status-box');
-  if (gameState.highlightCard && gameState.highlightCard.card) {
-    const card = gameState.highlightCard.card;
-    document.getElementById('hl-emoji').textContent = card.emoji;
-    document.getElementById('hl-name').textContent = card.name;
-    document.getElementById('hl-code').textContent = card.code;
-    box.style.display = 'block';
+  
+  const meta = TYPE_META[targetCard.type];
+  
+  const title = document.createElement('div');
+  title.className = 'section-title';
+  title.textContent = isHighlighting ? '📺 현재 화면에 크게 송출 중 (대기)' : '🃏 선택된 카드 제어';
+  box.appendChild(title);
+  
+  const cardInfo = document.createElement('div');
+  cardInfo.className = 'ctrl-card-info';
+  cardInfo.innerHTML = `
+    <span class="cc-emoji">${targetCard.emoji}</span>
+    <div class="cc-details">
+      <div class="cc-header-row">
+        <span class="cc-badge" style="background:${meta.bg};color:${meta.color};">${meta.label}</span>
+        <span class="cc-name">${targetCard.name}</span>
+      </div>
+      <div class="cc-desc">${targetCard.desc}</div>
+    </div>
+  `;
+  
+  const actions = document.createElement('div');
+  actions.className = 'cc-actions';
+  
+  if (isHighlighting) {
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'btn-action-main cancel';
+    cancelBtn.textContent = '✕ 송출 취소';
+    cancelBtn.onclick = cancelHighlight;
+    actions.appendChild(cancelBtn);
   } else {
-    box.style.display = 'none';
+    const highlightBtn = document.createElement('button');
+    highlightBtn.className = 'btn-action-main highlight';
+    highlightBtn.textContent = '⚡ 큰 카드로 화면 송출';
+    highlightBtn.onclick = () => publishHighlight(targetCard);
+    actions.appendChild(highlightBtn);
   }
+  
+  cardInfo.appendChild(actions);
+  box.appendChild(cardInfo);
 }
 
 // 송출 이력을 기준으로 카드를 흐림 비활성화
@@ -712,10 +740,8 @@ function updateUsedCards() {
 
 // 종합 UI 업데이트
 function updateUI(){
-  renderTurnOrder();
-  renderSlots();
-  updateActiveRulesUI();
-  updateHighlightUI();
+  renderTeamBoard();
+  updateControlCenterUI();
   updateUsedCards();
 }
 
