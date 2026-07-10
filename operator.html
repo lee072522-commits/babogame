@@ -62,19 +62,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:#0f0800;color:var(--cream)
 
 .panel-box{background:#1A0F00;border:1.5px solid var(--wood-dark);border-radius:12px;padding:1rem;}
 
-/* 라운드 */
-.round-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;}
-.round-num{font-family:'Noto Serif KR',serif;font-size:1.2rem;color:var(--gold-light);}
-.btn-round{
-  background:rgba(255,255,255,.05);border:1px solid var(--wood-mid);border-radius:6px;
-  color:var(--cream);font-family:'Noto Sans KR',sans-serif;font-size:.75rem;
-  padding:.3rem .65rem;cursor:pointer;transition:all .15s;
-}
-.btn-round:hover{border-color:var(--gold);color:var(--gold-light);}
-.active-rules-mini{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.4rem;}
-.rule-mini-chip{background:rgba(201,146,42,.12);border:1px solid rgba(201,146,42,.4);border-radius:6px;padding:.18rem .45rem;font-size:.65rem;color:var(--gold-light);display:flex;align-items:center;gap:3px;}
-.btn-rule-del {background:none;border:none;color:#E74C3C;cursor:pointer;font-weight:bold;margin-left:2px;font-size:0.6rem;}
-
 /* 팀 순서 설정 */
 .team-order-list{display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.6rem;}
 .team-order-item{
@@ -218,22 +205,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:#0f0800;color:var(--cream)
 <div class="op-body">
   <div class="op-left">
 
-    <!-- 라운드 설정 -->
-    <div class="panel-box">
-      <div class="section-title">라운드 설정</div>
-      <div class="round-row">
-        <div class="round-num">라운드 <span id="round-num">1</span></div>
-        <div style="display:flex;gap:.35rem;">
-          <button class="btn-round" onclick="changeRound(-1)">◀</button>
-          <button class="btn-round" onclick="changeRound(1)">▶</button>
-        </div>
-      </div>
-      <div style="font-size:.67rem;color:var(--wood-light);margin-bottom:.35rem;font-weight:bold;margin-top:0.6rem;">적용 중인 공통 규칙</div>
-      <div class="active-rules-mini" id="op-active-rules">
-        <span style="color:rgba(160,113,79,.35);font-size:.67rem;">없음</span>
-      </div>
-    </div>
-
     <!-- 팀 게임 순서 설정 -->
     <div class="panel-box">
       <div class="section-title">게임 순서 설정 (이름 더블클릭/수정)</div>
@@ -246,16 +217,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:#0f0800;color:var(--cream)
           🎲 섞기
         </button>
       </div>
-    </div>
-
-    <!-- 검색창 (코드입력 대체) -->
-    <div class="panel-box">
-      <div class="section-title">미션 검색 (이름/내용/코드)</div>
-      <div class="code-row">
-        <input type="text" class="code-input" id="search-input" placeholder="검색어를 입력하세요 (예: 금지, 웃음)"
-          oninput="filterCards()">
-      </div>
-      <div class="code-hint">입력 시 실시간으로 오른쪽 목록이 필터링됩니다.</div>
     </div>
 
     <!-- 미리보기 -->
@@ -304,9 +265,15 @@ body{font-family:'Noto Sans KR',sans-serif;background:#0f0800;color:var(--cream)
 
   </div>
 
-  <!-- 카드 목록 -->
+  <!-- 카드 목록 (검색 필드가 상단에 넓게 배치됨) -->
   <div class="op-right">
-    <div class="section-title" style="margin-bottom:.8rem;">전체 카드 목록 — 클릭 시 선택 / 더블클릭 시 큰 카드로 송출</div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; gap:1.5rem;">
+      <div class="section-title" style="margin-bottom:0; font-size:0.8rem;">전체 카드 목록 — 클릭 시 선택 / 더블클릭 시 큰 카드로 송출</div>
+      <div style="width:350px;">
+        <input type="text" class="code-input" id="search-input" placeholder="🔍 미션 검색 (이름, 내용, 코드)"
+          oninput="filterCards()" style="padding: 0.45rem 0.8rem; font-size: 0.8rem; border-radius: 6px;">
+      </div>
+    </div>
     <div class="card-grid" id="card-grid"></div>
   </div>
 </div>
@@ -380,15 +347,14 @@ function publishState(){
   updateUI();
 }
 
-/* ── 라운드 변경 ── */
-function changeRound(d){
-  gameState.round = Math.max(1, gameState.round + d);
-  publishState();
-}
-
 /* ── 게임 초기화 ── */
 function resetGame() {
-  if (!confirm('정말로 게임을 초기화하시겠습니까?\n모든 배치된 카드 및 사용 이력이 초기 상태로 리셋되며 라운드는 1로 돌아갑니다. (팀 이름은 유지됩니다)')) {
+  // 포커스 강제 해제로 뒤늦은 onchange 격발 차단
+  if (document.activeElement && document.activeElement.blur) {
+    document.activeElement.blur();
+  }
+
+  if (!confirm('정말로 게임을 초기화하시겠습니까?\n모든 배치된 카드 및 사용 이력이 초기 상태로 리셋됩니다. (팀 이름은 유지됩니다)')) {
     return;
   }
   
@@ -410,6 +376,12 @@ function resetGame() {
     lastPlaced: null,
     usedCardCodes: []
   };
+  
+  // 선택 및 미리보기 상태 완전 초기화
+  currentCard = null;
+  document.querySelectorAll('.card-thumb').forEach(e=>e.classList.remove('selected'));
+  document.getElementById('preview-empty').style.display = 'block';
+  document.getElementById('preview-card').style.display = 'none';
   
   // 검색 인풋창 초기화
   const search = document.getElementById('search-input');
@@ -694,7 +666,9 @@ function renderSlots(){
 }
 
 function updateActiveRulesUI(){
+  // 라운드가 없어져서 이 활성화 규칙 미니 UI도 없으므로 안전 예외 처리
   const el = document.getElementById('op-active-rules');
+  if (!el) return;
   if(!gameState.activeRules || !gameState.activeRules.length){
     el.innerHTML = '<span style="color:rgba(160,113,79,.35);font-size:.67rem;">없음</span>';
     return;
@@ -738,7 +712,6 @@ function updateUsedCards() {
 
 // 종합 UI 업데이트
 function updateUI(){
-  document.getElementById('round-num').textContent = gameState.round;
   renderTurnOrder();
   renderSlots();
   updateActiveRulesUI();
