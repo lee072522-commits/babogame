@@ -6,41 +6,70 @@
 <title>바보타임 — 송출 화면</title>
 <script src="cards.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Noto+Serif+KR:wght@700;900&display=swap');
-:root{
-  --gold:#C9922A;--gold-light:#E8B84B;--cream:#F5EDD8;
-  --wood-light:#A0714F;--wood-dark:#3D2610;--text-dark:#1A0F00;
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-html,body{width:100%;height:100%;overflow:hidden;}
-body{
-  font-family:'Noto Sans KR',sans-serif;
-  background:radial-gradient(ellipse at 50% 45%,#2D5A3D 0%,#1A3D28 45%,#0D2418 100%);
-  position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:1rem;
+@import url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@2.1/NeoDunggeunmo.woff');
+
+:root {
+  --gold: #C9922A;
+  --gold-light: #E8B84B;
+  --cream: #F5EDD8;
+  --wood-light: #A0714F;
+  --wood-dark: #3D2610;
+  --text-dark: #1A0F00;
 }
 
-/* 펠트 질감 */
-body::before{
-  content:'';position:absolute;inset:0;
-  background:
-    repeating-linear-gradient(92deg,transparent 0,rgba(255,255,255,.012) 1px,transparent 2px,transparent 60px),
-    repeating-linear-gradient(5deg,transparent 0,rgba(0,0,0,.03) 1px,transparent 2px,transparent 80px);
-  pointer-events:none;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'NeoDunggeunmo', sans-serif;
+}
+
+body {
+  background: url('sunset_bg.png') no-repeat center center fixed;
+  background-size: cover;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+/* 화면 전체에 어두운 비네팅 효과 (가독성 증대) */
+body::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.45) 100%);
+  pointer-events: none;
   z-index: 1;
 }
 
 /* LIVE 뱃지 */
-.live-badge{
-  position:absolute;top:1.5rem;right:1.5rem;
-  background:#C0392B;color:#fff;font-size:.7rem;font-weight:900;
-  letter-spacing:.12em;padding:.28rem .65rem;border-radius:6px;
-  animation:blink 1.5s infinite;z-index:10;
+.live-badge {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: #C0392B;
+  color: #fff;
+  font-size: .8rem;
+  font-weight: bold;
+  letter-spacing: .12em;
+  padding: .3rem .7rem;
+  border-radius: 6px;
+  border: 2px solid #000;
+  animation: blink 1.5s infinite;
+  z-index: 10;
 }
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes blink {
+  0%, 100% { opacity: 1 }
+  50% { opacity: .35 }
+}
 
 /* ── 전체 3컬럼 레이아웃 ── */
 .main-layout {
@@ -59,7 +88,7 @@ body::before{
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  width: 280px; /* 3팀씩 양옆 넓게 구성 */
+  width: 280px;
   flex-shrink: 0;
   gap: 1rem;
 }
@@ -85,11 +114,21 @@ body::before{
   gap: 0.2rem;
   z-index: 5;
 }
-.bc-title{
-  font-family:'Noto Serif KR',serif;font-size:1.6rem;
-  color:var(--gold-light);letter-spacing:.3em;
-  text-shadow: 0 3px 15px rgba(0,0,0,0.6);
+
+/* 석양바보 타이틀 픽셀 로고 스타일 */
+.bc-title {
+  font-size: 2.8rem;
+  color: #FFCC00;
+  letter-spacing: .15em;
   font-weight: 900;
+  -webkit-text-stroke: 2px #000000;
+  text-shadow: 
+    3px 3px 0px #000000,
+    -1px -1px 0px #000,
+    1px -1px 0px #000,
+    -1px 1px 0px #000,
+    1px 1px 0px #000;
+  margin-top: 0.5rem;
 }
 
 /* 팀 순서 바 */
@@ -98,38 +137,37 @@ body::before{
   gap: 0.6rem;
   justify-content: center;
   align-items: center;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.65);
   padding: 0.45rem 1.4rem;
-  border-radius: 30px;
-  border: 1px solid rgba(201, 146, 42, 0.25);
-  margin-top: 0.4rem;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  border-radius: 8px;
+  border: 3px solid #000;
+  margin-top: 0.6rem;
+  box-shadow: 0 6px 0 rgba(0,0,0,0.3);
 }
 .turn-team-chip {
-  padding: 0.3rem 0.85rem;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.04);
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.5);
+  padding: 0.35rem 0.85rem;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  border: 1.5px solid transparent;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 2px solid transparent;
+  transition: all 0.2s;
 }
 .turn-team-chip.active {
-  background: rgba(201, 146, 42, 0.2);
-  border-color: var(--gold);
-  color: var(--gold-light);
+  background: #FFCC00;
+  border-color: #000;
+  color: #000;
   transform: scale(1.08);
-  box-shadow: 0 0 12px rgba(201, 146, 42, 0.4);
-  font-weight: 700;
+  box-shadow: 0 0 10px rgba(255, 204, 0, 0.4);
+  font-weight: bold;
 }
 .turn-arrow {
-  color: var(--gold);
-  font-size: 0.7rem;
-  opacity: 0.5;
+  color: #FFCC00;
+  font-size: 0.8rem;
+  opacity: 0.8;
   margin-left: 0.2rem;
 }
 
@@ -149,36 +187,36 @@ body::before{
   position: relative;
   width: 190px;
   height: 270px;
-  border-radius: 18px;
+  border-radius: 12px;
   z-index: 5;
 }
 .deck-card-layer {
   position: absolute;
   inset: 0;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #1A3A5C 0%, #0D2135 100%);
-  border: 3.5px solid #3A6A9C;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  border-radius: 12px;
+  background: linear-gradient(135deg, #A0714F 0%, #3D2610 100%);
+  border: 4px solid #000;
+  box-shadow: 0 8px 0 rgba(0,0,0,0.4);
 }
-.deck-card-layer:nth-child(1) { transform: translate(-4px, -4px); }
-.deck-card-layer:nth-child(2) { transform: translate(-8px, -8px); }
+.deck-card-layer:nth-child(1) { transform: translate(-4px, 4px); }
+.deck-card-layer:nth-child(2) { transform: translate(-8px, 8px); }
 .deck-card-layer:nth-child(3) { 
-  transform: translate(-12px, -12px); 
-  box-shadow: 8px 8px 20px rgba(0,0,0,0.65);
+  transform: translate(-12px, 12px); 
+  box-shadow: 0 12px 0 rgba(0,0,0,0.5);
 }
 
 /* 공통 카드 슬롯 (팀 카드 슬롯과 통일) */
 .common-card-slot {
   width: 120px;
   height: 170px;
-  border: 2px dashed rgba(201, 146, 42, 0.25);
-  border-radius: 14px;
-  background: rgba(0,0,0,0.25);
+  border: 3px dashed rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
+  background: rgba(0,0,0,0.55);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  box-shadow: inset 0 3px 10px rgba(0,0,0,0.35);
+  box-shadow: inset 0 4px 10px rgba(0,0,0,0.5);
   z-index: 5;
 }
 .slot-empty {
@@ -188,9 +226,9 @@ body::before{
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: rgba(201, 146, 42, 0.4);
-  font-size: 0.8rem;
-  font-weight: 700;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.85rem;
+  font-weight: bold;
   gap: 0.6rem;
 }
 
@@ -198,10 +236,10 @@ body::before{
 .common-card {
   position: absolute;
   inset: 0;
-  border-radius: 14px;
+  border-radius: 8px;
   background: var(--cream);
-  border: 2.5px solid var(--gold);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  border: 4px solid #000;
+  box-shadow: 0 8px 0 rgba(0,0,0,0.35);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -215,23 +253,22 @@ body::before{
   line-height: 1;
 }
 .common-card-name {
-  font-size: 0.82rem;
-  font-weight: 900;
+  font-size: 0.9rem;
+  font-weight: bold;
   color: #1A0F00;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   width: 100%;
   text-align: center;
-  font-family: 'Noto Serif KR', serif;
   padding: 0 4px;
 }
 .common-card.type-special {
-  border-color: #9B59B6;
+  border-color: #000;
   background: #F4ECF7;
 }
 .common-card.type-team {
-  border-color: #E74C3C;
+  border-color: #000;
   background: #FDEDEC;
 }
 
@@ -253,35 +290,29 @@ body::before{
   pointer-events: auto;
 }
 .turn-intro-panel {
-  background: rgba(16, 9, 0, 0.72);
-  border: 2px solid var(--gold);
-  border-radius: 28px;
+  background: rgba(0, 0, 0, 0.85);
+  border: 4px solid #000;
+  border-radius: 16px;
   padding: 2.2rem 4rem;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 30px rgba(201, 146, 42, 0.2);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.8rem;
-  animation: panel-glow 2.5s infinite alternate;
-}
-@keyframes panel-glow {
-  from { box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 20px rgba(201, 146, 42, 0.15); }
-  to { box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 40px rgba(201, 146, 42, 0.35); }
 }
 .turn-intro-label {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: rgba(255,255,255,0.35);
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: rgba(255,255,255,0.4);
   letter-spacing: 0.25em;
   text-transform: uppercase;
 }
 .turn-intro-team {
-  font-family: 'Noto Serif KR', serif;
   font-size: 3.2rem;
   font-weight: 900;
-  color: var(--gold-light);
-  text-shadow: 0 3px 15px rgba(0,0,0,0.6);
+  color: #FFCC00;
+  -webkit-text-stroke: 1.5px #000;
+  text-shadow: 3px 3px 0 #000;
   animation: float-team 3s ease-in-out infinite;
 }
 @keyframes float-team {
@@ -289,43 +320,43 @@ body::before{
   50% { transform: translateY(-8px) scale(1.02); }
 }
 .turn-intro-action {
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: bold;
   color: var(--cream);
   letter-spacing: 0.05em;
 }
 
 /* ── 양옆 팀별 패널 ── */
 .team-panel {
-  background: rgba(26, 15, 0, 0.45);
-  border: 2px solid var(--wood-dark);
-  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 3px solid #000;
+  border-radius: 12px;
   padding: 0.8rem 0.6rem 1rem;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(4px);
   text-align: center;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.15);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  transition: all 0.25s;
+  box-shadow: 0 6px 0 rgba(0,0,0,0.3);
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 .team-panel.active-turn {
-  border-color: var(--gold);
-  box-shadow: 0 0 20px rgba(201, 146, 42, 0.32);
-  background: rgba(43, 24, 9, 0.55);
-  transform: scale(1.03);
+  border-color: #FFCC00;
+  box-shadow: 0 0 15px rgba(255, 204, 0, 0.4), 0 6px 0 rgba(0,0,0,0.3);
+  background: rgba(43, 24, 9, 0.7);
+  transform: translateY(-2px);
 }
 .team-name-title {
-  font-size: 1.1rem;
-  font-weight: 900;
-  color: rgba(255, 255, 255, 0.55);
+  font-size: 1.15rem;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.7);
   margin-bottom: 0.7rem;
   letter-spacing: 0.08em;
   transition: color 0.3s;
 }
 .team-panel.active-turn .team-name-title {
-  color: var(--gold-light);
-  text-shadow: 0 0 8px rgba(232, 184, 75, 0.35);
+  color: #FFCC00;
+  text-shadow: 1px 1px 0 #000;
 }
 
 .team-slots-container {
@@ -338,23 +369,22 @@ body::before{
 .mini-card-slot {
   width: 95px;
   height: 135px;
-  border: 2px dashed rgba(201, 146, 42, 0.22);
-  border-radius: 10px;
-  background: rgba(0,0,0,0.25);
+  border: 3px dashed rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  background: rgba(0,0,0,0.4);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  transition: all 0.3s;
-  box-shadow: inset 0 3px 10px rgba(0,0,0,0.35);
+  box-shadow: inset 0 3px 8px rgba(0,0,0,0.4);
 }
 .mini-card {
   position: absolute;
   inset: 0;
-  border-radius: 10px;
+  border-radius: 6px;
   background: var(--cream);
-  border: 2.2px solid var(--gold);
-  box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+  border: 3.5px solid #000;
+  box-shadow: 0 5px 0 rgba(0,0,0,0.3);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -368,23 +398,22 @@ body::before{
   line-height: 1;
 }
 .mini-card-name {
-  font-size: 0.72rem;
-  font-weight: 900;
+  font-size: 0.78rem;
+  font-weight: bold;
   color: #1A0F00;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   width: 100%;
   text-align: center;
-  font-family: 'Noto Serif KR', serif;
   padding: 0 2px;
 }
 .mini-card.type-special {
-  border-color: #9B59B6;
+  border-color: #000;
   background: #F4ECF7;
 }
 .mini-card.type-team {
-  border-color: #E74C3C;
+  border-color: #000;
   background: #FDEDEC;
 }
 
@@ -393,11 +422,11 @@ body::before{
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(8px);
   display: none;
   align-items: center;
   justify-content: center;
-  z-index: 100;
+  z-index: 200;
   opacity: 0;
   transition: opacity 0.5s ease;
 }
@@ -412,10 +441,9 @@ body::before{
   width: 290px;
   height: 410px;
   perspective: 1200px;
-  z-index: 105;
+  z-index: 205;
   transform-style: preserve-3d;
   opacity: 0;
-  /* 드로우 궤적 트랜지션 */
   transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.7s ease;
 }
 
@@ -434,25 +462,25 @@ body::before{
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
-  border-radius: 20px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.85);
+  border-radius: 12px;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.7);
 }
 
 .draw-card-back {
-  background: linear-gradient(135deg, #1A3A5C 0%, #0D2135 100%);
-  border: 4.5px solid #3A6A9C;
+  background: linear-gradient(135deg, #A0714F 0%, #3D2610 100%);
+  border: 5px solid #000;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
 }
-.draw-card-back .db-emoji { font-size: 5.5rem; opacity: 0.18; }
-.draw-card-back .db-text { font-family: 'Noto Serif KR', serif; font-size: 1.7rem; color: rgba(255,255,255,0.12); letter-spacing: 0.15em; }
+.draw-card-back .db-emoji { font-size: 5.5rem; opacity: 0.25; }
+.draw-card-back .db-text { font-size: 1.8rem; color: rgba(255,255,255,0.2); letter-spacing: 0.15em; }
 
 .draw-card-front {
   background: var(--cream);
-  border: 4.5px solid var(--gold);
+  border: 5px solid #000;
   transform: rotateY(180deg);
   display: flex;
   flex-direction: column;
@@ -464,20 +492,21 @@ body::before{
 }
 .draw-card-front .df-emoji { font-size: 6rem; line-height: 1; margin-bottom: 0.8rem; }
 .draw-card-front .df-type {
-  font-size: 0.78rem; font-weight: 700; border-radius: 6px; padding: 0.2rem 0.6rem;
+  font-size: 0.85rem; font-weight: bold; border-radius: 4px; padding: 0.25rem 0.6rem;
   letter-spacing: 0.06em; margin-bottom: 0.6rem; display: inline-block;
+  border: 2px solid #000;
 }
 .draw-card-front .df-name {
-  font-family: 'Noto Serif KR', serif; font-size: 1.75rem; font-weight: 900;
+  font-size: 1.8rem; font-weight: 900;
   color: #1A0F00; margin-bottom: 0.7rem; line-height: 1.25;
 }
-.draw-card-front .df-desc { font-size: 0.95rem; color: #5C3D1E; line-height: 1.5; max-width: 220px; }
+.draw-card-front .df-desc { font-size: 1rem; color: #5C3D1E; line-height: 1.5; max-width: 220px; }
 .draw-card-front .df-code {
   position: absolute; bottom: 12px; right: 14px;
-  font-size: 0.65rem; color: rgba(90,60,20,0.35); font-weight: 700;
+  font-size: 0.7rem; color: rgba(0,0,0,0.3); font-weight: bold;
 }
 
-/* ── 슬롯 배치 비행 연출 클래스 (Fly-away to slot) ── */
+/* ── 슬롯 배치 비행 연출 클래스 ── */
 .draw-card.fly-to-left {
   transform: translate(-600px, 200px) scale(0.12) rotate(-25deg) !important;
   opacity: 0 !important;
@@ -492,10 +521,16 @@ body::before{
 }
 
 /* 연결 상태 표시 */
-.conn-status{
-  position:absolute;bottom:1.5rem;right:1.5rem;
-  font-size:.6rem;color:rgba(255,255,255,.2);z-index:10;
+.conn-status {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  font-size: .65rem;
+  color: rgba(255,255,255,.3);
+  z-index: 10;
 }
+
+
 </style>
 </head>
 <body>
@@ -576,6 +611,8 @@ body::before{
   </div>
 </div>
 
+
+
 <div class="conn-status" id="conn-status">운영 패널 연결 대기 중...</div>
 
 <script>
@@ -623,6 +660,8 @@ function handleMessage(data) {
 
 // 통합 동기화 처리
 function syncGameState(state) {
+
+
   // 1. 팀 게임 순서 바 렌더링 (동적 팀 이름 매핑 적용)
   const orderContainer = document.getElementById('turn-order-container');
   orderContainer.innerHTML = '';
