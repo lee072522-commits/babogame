@@ -174,6 +174,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:#0f0800;color:var(--cream)
 }
 .card-thumb:hover{border-color:var(--gold);background:#251508;}
 .card-thumb.selected{border-color:var(--gold);background:rgba(201,146,42,.15);}
+.card-thumb.blue-team-card { border-color: #0A369D; }
+.card-thumb.orange-team-card { border-color: #e67e22; }
 
 /* 배치됨(사용됨) 마크 */
 .card-thumb.used {
@@ -202,6 +204,12 @@ body{font-family:'Noto Sans KR',sans-serif;background:#0f0800;color:var(--cream)
 ::-webkit-scrollbar{width:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--wood-dark);border-radius:2px;}
+.card-img-fit {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  border-radius: inherit;
+}
 </style>
 </head>
 <body>
@@ -693,8 +701,14 @@ function updateControlCenterUI() {
   
   const cardInfo = document.createElement('div');
   cardInfo.className = 'ctrl-card-info';
+  const mediaPreview = targetCard.image
+    ? `<div class="cc-emoji" style="width: 50px; height: 70px; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 4px; flex-shrink: 0; border: 1px solid var(--wood-dark);">
+         <img src="${targetCard.image}" class="card-img-fit" />
+       </div>`
+    : `<span class="cc-emoji">${targetCard.emoji}</span>`;
+
   cardInfo.innerHTML = `
-    <span class="cc-emoji">${targetCard.emoji}</span>
+    ${mediaPreview}
     <div class="cc-details">
       <div class="cc-header-row">
         <span class="cc-badge" style="background:${meta.bg};color:${meta.color};">${meta.label}</span>
@@ -751,33 +765,64 @@ function updateUI(){
 function buildGrid(){
   const grid = document.getElementById('card-grid');
   grid.innerHTML = '';
-  const groups = {common:[],team:[],special:[]};
-  Object.entries(CARD_DB).forEach(([code,card])=>groups[card.type].push({code,...card}));
-  ['common','team','special'].forEach(type=>{
+  
+  const groups = {
+    common: [],
+    team_blue: [],
+    team_orange: [],
+    special: []
+  };
+  
+  Object.entries(CARD_DB).forEach(([code, card]) => {
+    if (card.type === 'team') {
+      if (card.color === 'blue') {
+        groups.team_blue.push({code, ...card});
+      } else {
+        groups.team_orange.push({code, ...card});
+      }
+    } else {
+      groups[card.type].push({code, ...card});
+    }
+  });
+
+  const types = ['common', 'team_blue', 'team_orange', 'special'];
+
+  types.forEach(type => {
     const meta = TYPE_META[type];
+    if (!meta) return;
     
     const h = document.createElement('div');
     h.className = 'group-header';
     h.setAttribute('data-type', type);
     h.style.cssText = `background:${meta.bg}18;border:1px solid ${meta.bg}55;color:${meta.color}`;
-    h.textContent = `${meta.label} 카드 (${groups[type].length}장)`;
+    h.textContent = `${meta.label} (${groups[type].length}장)`;
     grid.appendChild(h);
     
-    groups[type].forEach(card=>{
+    groups[type].forEach(card => {
       const el = document.createElement('div');
       el.className = 'card-thumb'; 
-      el.id = 'thumb-'+card.code;
+      el.id = 'thumb-' + card.code;
       el.setAttribute('data-code', card.code);
-      el.innerHTML = `<div class="ct-emoji">${card.emoji}</div>
+      
+      if (type === 'team_blue') el.classList.add('blue-team-card');
+      if (type === 'team_orange') el.classList.add('orange-team-card');
+
+      const mediaHtml = card.image
+        ? `<div class="ct-emoji" style="height: 40px; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 4px; margin-bottom: 0.25rem;">
+             <img src="${card.image}" class="card-img-fit" style="object-fit: cover;" />
+           </div>`
+        : `<div class="ct-emoji">${card.emoji}</div>`;
+
+      el.innerHTML = `${mediaHtml}
         <div class="ct-name">${card.name}</div>
         <div class="ct-code">${card.code}</div>
         <div class="ct-type" style="background:${meta.bg};color:${meta.color}">${meta.label}</div>`;
       
       // 클릭 시 단순 선택
-      el.addEventListener('click',()=>selectCard(card.code));
+      el.addEventListener('click', () => selectCard(card.code));
       
       // 더블클릭 시 큰 카드로 중앙에 1차 송출 (배치 대기 상태)
-      el.addEventListener('dblclick',()=>publishHighlight({code: card.code, ...CARD_DB[card.code]}));
+      el.addEventListener('dblclick', () => publishHighlight({code: card.code, ...CARD_DB[card.code]}));
       
       grid.appendChild(el);
     });
@@ -785,10 +830,12 @@ function buildGrid(){
 }
 
 // 초기화 실행
-
-
-buildGrid();
-updateUI();
+async function initOperator() {
+  await loadDynamicCards();
+  buildGrid();
+  updateUI();
+}
+initOperator();
 </script>
 </body>
 </html>

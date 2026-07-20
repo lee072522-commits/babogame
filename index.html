@@ -416,6 +416,14 @@ body::before {
   border-color: #000;
   background: #FDEDEC;
 }
+.mini-card.type-team.color-blue {
+  border-color: #0A369D;
+  background: #EAF2F8;
+}
+.mini-card.type-team.color-orange {
+  border-color: #e67e22;
+  background: #FEF9E7;
+}
 
 /* ── 중앙 드로우 하이라이트 오버레이 ── */
 .draw-overlay {
@@ -531,6 +539,14 @@ body::before {
 }
 
 
+.card-img-fit {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  border-radius: inherit;
+}
+
+
 </style>
 </head>
 <body>
@@ -601,6 +617,7 @@ body::before {
         <div class="db-text">바보타임</div>
       </div>
       <div class="draw-card-face draw-card-front">
+        <img id="df-image" class="card-img-fit" style="display:none;" />
         <span class="df-emoji" id="df-emoji"></span>
         <span class="df-type" id="df-type"></span>
         <div class="df-name" id="df-name"></div>
@@ -735,13 +752,56 @@ function triggerDrawAnimation(card) {
   const inner = document.getElementById('draw-card-inner');
 
   // 데이터 바인딩
-  document.getElementById('df-emoji').textContent = card.emoji;
-  document.getElementById('df-name').textContent = card.name;
-  document.getElementById('df-desc').textContent = card.desc;
-  document.getElementById('df-code').textContent = card.code;
-  const t = document.getElementById('df-type');
-  t.textContent = TYPE_META[card.type].label;
-  t.className = `df-type type-${card.type}`;
+  const dfImage = document.getElementById('df-image');
+  const dfEmoji = document.getElementById('df-emoji');
+  const dfType = document.getElementById('df-type');
+  const dfName = document.getElementById('df-name');
+  const dfDesc = document.getElementById('df-desc');
+  const dfCode = document.getElementById('df-code');
+  const front = document.querySelector('.draw-card-front');
+
+  if (card.image) {
+    dfImage.src = card.image;
+    dfImage.style.display = 'block';
+
+    dfEmoji.style.display = 'none';
+    dfType.style.display = 'none';
+    dfName.style.display = 'none';
+    dfDesc.style.display = 'none';
+    dfCode.style.display = 'none';
+
+    front.style.padding = '0';
+
+    // 카드 보더 테마색 분기 처리
+    if (card.type === 'team') {
+      if (card.color === 'blue') {
+        front.style.border = '10px solid #0A369D';
+      } else if (card.color === 'orange') {
+        front.style.border = '10px solid #e67e22';
+      } else {
+        front.style.border = '5px solid #000';
+      }
+    } else {
+      front.style.border = '5px solid #000';
+    }
+  } else {
+    dfImage.style.display = 'none';
+
+    dfEmoji.style.display = '';
+    dfType.style.display = '';
+    dfName.style.display = '';
+    dfDesc.style.display = '';
+    dfCode.style.display = '';
+
+    front.style.padding = '';
+
+    dfEmoji.textContent = card.emoji;
+    dfName.textContent = card.name;
+    dfDesc.textContent = card.desc;
+    dfCode.textContent = card.code;
+    dfType.textContent = TYPE_META[card.type].label;
+    dfType.className = `df-type type-${card.type}`;
+  }
 
   // 모션 초기화
   drawCard.className = 'draw-card';
@@ -833,10 +893,16 @@ function renderBoardGrid(state, popTarget = null) {
     activeCommonCardCode = state.commonCard.code;
     const shouldPop = popTarget && popTarget.target === 'common';
     
+    const content = state.commonCard.image
+      ? `<img src="${state.commonCard.image}" class="card-img-fit" />`
+      : `<div class="common-card-emoji">${state.commonCard.emoji}</div>
+         <div class="common-card-name">${state.commonCard.name}</div>`;
+         
+    const paddingStyle = state.commonCard.image ? 'padding:0;' : '';
+    
     commonSlot.innerHTML = `
-      <div class="common-card type-${state.commonCard.type}" style="${shouldPop ? 'animation: card-pop 0.45s cubic-bezier(.34,1.8,.64,1);' : ''}">
-        <div class="common-card-emoji">${state.commonCard.emoji}</div>
-        <div class="common-card-name">${state.commonCard.name}</div>
+      <div class="common-card type-${state.commonCard.type}" style="${paddingStyle} ${shouldPop ? 'animation: card-pop 0.45s cubic-bezier(.34,1.8,.64,1);' : ''}">
+        ${content}
       </div>
     `;
   } else {
@@ -883,14 +949,20 @@ function renderBoardGrid(state, popTarget = null) {
         const shouldPop = popTarget && popTarget.target === team && popTarget.slotIdx === i;
         
         const miniCard = document.createElement('div');
-        miniCard.className = `mini-card type-${card.type}`;
+        miniCard.className = `mini-card type-${card.type}` + (card.color ? ` color-${card.color}` : '');
         if (shouldPop) {
           miniCard.style.animation = 'card-pop 0.45s cubic-bezier(.34,1.8,.64,1)';
         }
-        miniCard.innerHTML = `
-          <div class="mini-card-emoji">${card.emoji}</div>
-          <div class="mini-card-name">${card.name}</div>
-        `;
+        
+        if (card.image) {
+          miniCard.style.padding = '0';
+          miniCard.innerHTML = `<img src="${card.image}" class="card-img-fit" />`;
+        } else {
+          miniCard.innerHTML = `
+            <div class="mini-card-emoji">${card.emoji}</div>
+            <div class="mini-card-name">${card.name}</div>
+          `;
+        }
         slot.appendChild(miniCard);
       }
       slotsContainer.appendChild(slot);
@@ -925,14 +997,20 @@ function renderBoardGrid(state, popTarget = null) {
         const shouldPop = popTarget && popTarget.target === team && popTarget.slotIdx === i;
         
         const miniCard = document.createElement('div');
-        miniCard.className = `mini-card type-${card.type}`;
+        miniCard.className = `mini-card type-${card.type}` + (card.color ? ` color-${card.color}` : '');
         if (shouldPop) {
           miniCard.style.animation = 'card-pop 0.45s cubic-bezier(.34,1.8,.64,1)';
         }
-        miniCard.innerHTML = `
-          <div class="mini-card-emoji">${card.emoji}</div>
-          <div class="mini-card-name">${card.name}</div>
-        `;
+        
+        if (card.image) {
+          miniCard.style.padding = '0';
+          miniCard.innerHTML = `<img src="${card.image}" class="card-img-fit" />`;
+        } else {
+          miniCard.innerHTML = `
+            <div class="mini-card-emoji">${card.emoji}</div>
+            <div class="mini-card-name">${card.name}</div>
+          `;
+        }
         slot.appendChild(miniCard);
       }
       slotsContainer.appendChild(slot);
@@ -944,15 +1022,19 @@ function renderBoardGrid(state, popTarget = null) {
 }
 
 // 최초 로드 시 기존 상태 로드
-const initRaw = localStorage.getItem('babo_broadcast');
-if (initRaw) {
-  try {
-    const data = JSON.parse(initRaw);
-    if (data && data.type === 'sync_state' && data.state) {
-      syncGameState(data.state);
-    }
-  } catch(e) {}
+async function initBroadcast() {
+  await loadDynamicCards();
+  const initRaw = localStorage.getItem('babo_broadcast');
+  if (initRaw) {
+    try {
+      const data = JSON.parse(initRaw);
+      if (data && data.type === 'sync_state' && data.state) {
+        syncGameState(data.state);
+      }
+    } catch(e) {}
+  }
 }
+initBroadcast();
 </script>
 </body>
 </html>
