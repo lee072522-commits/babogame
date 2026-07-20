@@ -194,7 +194,8 @@ body::before {
   position: absolute;
   inset: 0;
   border-radius: 12px;
-  background: linear-gradient(135deg, #A0714F 0%, #3D2610 100%);
+  background: url('images/card-back.jpg') no-repeat center center;
+  background-size: cover;
   border: 4px solid #000;
   box-shadow: 0 8px 0 rgba(0,0,0,0.4);
 }
@@ -475,7 +476,8 @@ body::before {
 }
 
 .draw-card-back {
-  background: linear-gradient(135deg, #A0714F 0%, #3D2610 100%);
+  background: url('images/card-back.jpg') no-repeat center center;
+  background-size: cover;
   border: 5px solid #000;
   display: flex;
   flex-direction: column;
@@ -577,16 +579,10 @@ body::before {
     
     <!-- 중앙 메인 보드 -->
     <div class="board-center">
-      <!-- 카드 덱 -->
       <div class="deck-container">
         <div class="deck-card-layer"></div>
         <div class="deck-card-layer"></div>
-        <div class="deck-card-layer" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.4rem;">
-          <div style="font-size:2.8rem;">🃏</div>
-          <div style="font-family:'Noto Serif KR',serif; font-size:1.1rem; color:rgba(255,255,255,0.18); letter-spacing:0.12em; font-weight:bold; text-align:center;">
-            바보게임<br><span style="font-size:0.65rem; opacity:0.8;">CARD DECK</span>
-          </div>
-        </div>
+        <div class="deck-card-layer"></div>
       </div>
       
       <!-- 공통 카드 슬롯 -->
@@ -618,10 +614,7 @@ body::before {
 <div class="draw-overlay" id="draw-overlay">
   <div class="draw-card" id="draw-card">
     <div class="draw-card-inner" id="draw-card-inner">
-      <div class="draw-card-face draw-card-back">
-        <div class="db-emoji">🃏</div>
-        <div class="db-text">바보타임</div>
-      </div>
+      <div class="draw-card-face draw-card-back"></div>
       <div class="draw-card-face draw-card-front">
         <img id="df-image" class="card-img-fit" style="display:none;" />
         <span class="df-emoji" id="df-emoji"></span>
