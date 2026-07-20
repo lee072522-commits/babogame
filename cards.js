@@ -60,6 +60,20 @@ async function loadDynamicCards() {
         image: `images/${file}`
       };
     });
+
+    // 3. 특수 카드 로딩
+    const resSpecial = await fetch('/api/special-images');
+    const filesSpecial = await resSpecial.json();
+    filesSpecial.forEach((file, index) => {
+      const id = `S-${String(index + 1).padStart(3, '0')}`;
+      CARD_DB[id] = {
+        emoji: '🌟',
+        name: `특수 미션 ${String(index + 1).padStart(2, '0')}`,
+        desc: `카드를 열어 이미지에 지정된 특수 미션 행동을 수행하세요.`,
+        type: 'special',
+        image: `images/${file}`
+      };
+    });
   } catch (err) {
     console.error('동적 카드 데이터 로드 실패:', err);
   }
