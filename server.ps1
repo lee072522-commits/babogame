@@ -30,6 +30,23 @@ try {
             $response.ContentType = "application/json; charset=utf-8"
             $response.ContentLength64 = $bytes.Length
             $response.OutputStream.Write($bytes, 0, $bytes.Length)
+        } elseif ($urlPath -eq "/api/common-images") {
+            $imagesDir = Join-Path (Get-Location) "images"
+            $json = "[]"
+            if (Test-Path $imagesDir) {
+                $files = Get-ChildItem -Path $imagesDir -Filter "common-*" | Where-Object { $_.Extension -match "jpg|jpeg|png" } | Select-Object -ExpandProperty Name
+                if ($null -ne $files) {
+                    if ($files -is [string]) {
+                        $json = "[`"$files`"]"
+                    } else {
+                        $json = $files | ConvertTo-Json -Compress
+                    }
+                }
+            }
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+            $response.ContentType = "application/json; charset=utf-8"
+            $response.ContentLength64 = $bytes.Length
+            $response.OutputStream.Write($bytes, 0, $bytes.Length)
         } else {
             $filePath = Join-Path (Get-Location) $urlPath
             if (Test-Path $filePath -PathType Leaf) {

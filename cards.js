@@ -25,14 +25,14 @@ const PREDEFINED_DESCS = {};
 
 async function loadDynamicCards() {
   try {
-    const res = await fetch('/api/team-images');
-    const files = await res.json();
-    
     // 기존 CARD_DB 키 제거
     for (let key in CARD_DB) {
       delete CARD_DB[key];
     }
     
+    // 1. 팀별 카드 로딩
+    const res = await fetch('/api/team-images');
+    const files = await res.json();
     files.forEach((file, index) => {
       const id = `T-${String(index + 1).padStart(3, '0')}`;
       const num = index + 1;
@@ -43,6 +43,20 @@ async function loadDynamicCards() {
         desc: `카드를 열어 이미지에 지정된 팀별 미션 행동을 수행하세요.`,
         type: 'team',
         color: isBlue ? 'blue' : 'orange',
+        image: `images/${file}`
+      };
+    });
+
+    // 2. 공통 카드 로딩
+    const resCommon = await fetch('/api/common-images');
+    const filesCommon = await resCommon.json();
+    filesCommon.forEach((file, index) => {
+      const id = `C-${String(index + 1).padStart(3, '0')}`;
+      CARD_DB[id] = {
+        emoji: '📢',
+        name: `공통 미션 ${String(index + 1).padStart(2, '0')}`,
+        desc: `카드를 열어 이미지에 지정된 공통 미션 행동을 수행하세요.`,
+        type: 'common',
         image: `images/${file}`
       };
     });
