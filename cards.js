@@ -65,7 +65,7 @@ async function loadDynamicCards() {
     };
   });
 
-  // 2. 공통 카드 로딩
+  // 2. 공통 카드 로딩 (64번 ~ 69번)
   let filesCommon = [];
   try {
     const resCommon = await fetch('/api/common-images');
@@ -80,16 +80,17 @@ async function loadDynamicCards() {
 
   filesCommon.forEach((file, index) => {
     const id = `C-${String(index + 1).padStart(3, '0')}`;
+    const cardNum = 63 + index + 1;
     CARD_DB[id] = {
       emoji: '📢',
-      name: `공통 미션 ${String(index + 1).padStart(2, '0')}`,
+      name: `공통 미션 ${String(cardNum).padStart(2, '0')}`,
       desc: `카드를 열어 이미지에 지정된 공통 미션 행동을 수행하세요.`,
       type: 'common',
       image: `images/${file}`
     };
   });
 
-  // 3. 특수 카드 로딩
+  // 3. 특수 카드 로딩 (70번 ~ 72번)
   let filesSpecial = [];
   try {
     const resSpecial = await fetch('/api/special-images');
@@ -104,9 +105,10 @@ async function loadDynamicCards() {
 
   filesSpecial.forEach((file, index) => {
     const id = `S-${String(index + 1).padStart(3, '0')}`;
+    const cardNum = 63 + 6 + index + 1;
     CARD_DB[id] = {
       emoji: '🌟',
-      name: `특수 미션 ${String(index + 1).padStart(2, '0')}`,
+      name: `특수 미션 ${String(cardNum).padStart(2, '0')}`,
       desc: `카드를 열어 이미지에 지정된 특수 미션 행동을 수행하세요.`,
       type: 'special',
       image: `images/${file}`
