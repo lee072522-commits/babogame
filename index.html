@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>바보타임 — 송출 화면</title>
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <script src="cards.js"></script>
 <style>
 @import url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@2.1/NeoDunggeunmo.woff');
@@ -667,8 +668,54 @@ setInterval(() => {
   } catch(err) {}
 }, 250);
 
+/* ── PeerJS 원격 네트워크 실시간 수신기 (무설정 자동연동) ── */
+const SYSTEM_ROOM_ID = 'babo-game-display-host-777';
+let peerDisplay = null;
+
+function initPeerReceiver() {
+  if (typeof Peer === 'undefined') return;
+  try {
+    peerDisplay = new Peer(SYSTEM_ROOM_ID);
+
+    peerDisplay.on('open', (id) => {
+      console.log('실시간 원격 수신기 준비 완료:', id);
+    });
+
+    peerDisplay.on('connection', (conn) => {
+      const connStatus = document.getElementById('conn-status');
+      if (connStatus) connStatus.textContent = '🟢 원격 운영 패널 실시간 연결됨';
+
+      conn.on('data', (data) => {
+        if (data && data.ts && data.ts > lastTs) {
+          lastTs = data.ts;
+          handleMessage(data);
+        }
+      });
+    });
+
+    peerDisplay.on('error', (err) => {
+      if (err.type === 'unavailable-id') {
+        // 호스트 ID가 이미 생성된 경우 보조 채널 수신
+        const fallbackPeer = new Peer(SYSTEM_ROOM_ID + '-sub-' + Math.floor(Math.random() * 1000));
+        fallbackPeer.on('connection', (conn) => {
+          conn.on('data', (data) => {
+            if (data && data.ts && data.ts > lastTs) {
+              lastTs = data.ts;
+              handleMessage(data);
+            }
+          });
+        });
+      }
+    });
+  } catch (err) {
+    console.error('PeerJS 수신기 오류:', err);
+  }
+}
+initPeerReceiver();
+
 function handleMessage(data) {
-  document.getElementById('conn-status').textContent = '✅ 운영 패널 연결됨';
+  const connStatus = document.getElementById('conn-status');
+  if (connStatus) connStatus.textContent = '🟢 운영 패널 연결됨';
   if (data.type === 'sync_state' && data.state) {
     syncGameState(data.state);
   }

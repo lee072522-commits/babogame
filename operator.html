@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>바보타임 — 운영진 패널</title>
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <script src="cards.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@600;700;900&display=swap');
@@ -329,6 +330,57 @@ function loadSavedState() {
 }
 loadSavedState();
 
+/* ── PeerJS 원격 네트워크 실시간 송신기 (무설정 자동연동) ── */
+const SYSTEM_ROOM_ID = 'babo-game-display-host-777';
+let peerOperator = null;
+let activePeerConnections = [];
+
+function initPeerSender() {
+  if (typeof Peer === 'undefined') return;
+  try {
+    peerOperator = new Peer();
+
+    peerOperator.on('open', () => {
+      connectToDisplayHost();
+    });
+
+    peerOperator.on('error', (err) => {
+      setTimeout(connectToDisplayHost, 3000);
+    });
+  } catch (err) {
+    console.error('PeerJS 송신기 초기화 실패:', err);
+  }
+}
+
+function connectToDisplayHost() {
+  if (!peerOperator || peerOperator.destroyed) return;
+
+  const conn = peerOperator.connect(SYSTEM_ROOM_ID, { reliable: true });
+
+  conn.on('open', () => {
+    console.log('실시간 송출 화면 연결 성공!');
+    const badge = document.getElementById('live-badge');
+    if (badge && badge.textContent === '⚫ 대기 중') {
+      badge.textContent = '🟢 실시간 연동 중';
+    }
+    if (!activePeerConnections.includes(conn)) {
+      activePeerConnections.push(conn);
+    }
+    publishState();
+  });
+
+  conn.on('close', () => {
+    activePeerConnections = activePeerConnections.filter(c => c !== conn);
+    setTimeout(connectToDisplayHost, 3000);
+  });
+
+  conn.on('error', () => {
+    setTimeout(connectToDisplayHost, 3000);
+  });
+}
+
+initPeerSender();
+
 /* ── 송출 화면 열기 ── */
 function openBroadcast(){
   bcWindow = window.open('index.html','babobtime_broadcast','width=1280,height=720');
@@ -336,11 +388,24 @@ function openBroadcast(){
 
 /* ── 상태 발행 ── */
 function publishState(){
-  localStorage.setItem('babo_broadcast', JSON.stringify({
+  const payload = {
     type: 'sync_state',
     state: gameState,
     ts: Date.now()
-  }));
+  };
+
+  // 1. 로컬 스토리지 저장 (동일 기기 브라우저 탭 간 실시간 연동)
+  localStorage.setItem('babo_broadcast', JSON.stringify(payload));
+
+  // 2. PeerJS 원격 네트워크 송신 (서로 다른 컴퓨터/노트북/모바일 실시간 연동)
+  activePeerConnections.forEach(conn => {
+    if (conn && conn.open) {
+      try {
+        conn.send(payload);
+      } catch (err) {}
+    }
+  });
+
   updateUI();
 }
 
