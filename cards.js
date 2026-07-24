@@ -23,60 +23,95 @@ const CARD_DB = {};
 // 기존 5개 이미지에 대한 정보 사전 정의 (동적 이미지가 우선이므로 비워둡니다)
 const PREDEFINED_DESCS = {};
 
-async function loadDynamicCards() {
-  try {
-    // 기존 CARD_DB 키 제거
-    for (let key in CARD_DB) {
-      delete CARD_DB[key];
-    }
-    
-    // 1. 팀별 카드 로딩
-    const res = await fetch('/api/team-images');
-    const files = await res.json();
-    files.forEach((file, index) => {
-      const id = `T-${String(index + 1).padStart(3, '0')}`;
-      const num = index + 1;
-      const isBlue = num <= 31;
-      CARD_DB[id] = {
-        emoji: '🃏',
-        name: `팀 미션 ${String(num).padStart(2, '0')}`,
-        desc: `카드를 열어 이미지에 지정된 팀별 미션 행동을 수행하세요.`,
-        type: 'team',
-        color: isBlue ? 'blue' : 'orange',
-        image: `images/${file}`
-      };
-    });
-
-    // 2. 공통 카드 로딩
-    const resCommon = await fetch('/api/common-images');
-    const filesCommon = await resCommon.json();
-    filesCommon.forEach((file, index) => {
-      const id = `C-${String(index + 1).padStart(3, '0')}`;
-      CARD_DB[id] = {
-        emoji: '📢',
-        name: `공통 미션 ${String(index + 1).padStart(2, '0')}`,
-        desc: `카드를 열어 이미지에 지정된 공통 미션 행동을 수행하세요.`,
-        type: 'common',
-        image: `images/${file}`
-      };
-    });
-
-    // 3. 특수 카드 로딩
-    const resSpecial = await fetch('/api/special-images');
-    const filesSpecial = await resSpecial.json();
-    filesSpecial.forEach((file, index) => {
-      const id = `S-${String(index + 1).padStart(3, '0')}`;
-      CARD_DB[id] = {
-        emoji: '🌟',
-        name: `특수 미션 ${String(index + 1).padStart(2, '0')}`,
-        desc: `카드를 열어 이미지에 지정된 특수 미션 행동을 수행하세요.`,
-        type: 'special',
-        image: `images/${file}`
-      };
-    });
-  } catch (err) {
-    console.error('동적 카드 데이터 로드 실패:', err);
+// 기본 폴백(Fallback) 이미지 목록 생성기 (GitHub Pages 등 정적 서버 환경용)
+function getFallbackImages(prefix, count) {
+  const list = [];
+  for (let i = 1; i <= count; i++) {
+    list.push(`${prefix}-${String(i).padStart(2, '0')}.jpg`);
   }
+  return list;
+}
+
+async function loadDynamicCards() {
+  // 기존 CARD_DB 키 제거
+  for (let key in CARD_DB) {
+    delete CARD_DB[key];
+  }
+
+  // 1. 팀별 카드 로딩
+  let files = [];
+  try {
+    const res = await fetch('/api/team-images');
+    if (res.ok) {
+      files = await res.json();
+    } else {
+      files = getFallbackImages('team', 63);
+    }
+  } catch (err) {
+    files = getFallbackImages('team', 63);
+  }
+
+  files.forEach((file, index) => {
+    const id = `T-${String(index + 1).padStart(3, '0')}`;
+    const num = index + 1;
+    const isBlue = num <= 31;
+    CARD_DB[id] = {
+      emoji: '🃏',
+      name: `팀 미션 ${String(num).padStart(2, '0')}`,
+      desc: `카드를 열어 이미지에 지정된 팀별 미션 행동을 수행하세요.`,
+      type: 'team',
+      color: isBlue ? 'blue' : 'orange',
+      image: `images/${file}`
+    };
+  });
+
+  // 2. 공통 카드 로딩
+  let filesCommon = [];
+  try {
+    const resCommon = await fetch('/api/common-images');
+    if (resCommon.ok) {
+      filesCommon = await resCommon.json();
+    } else {
+      filesCommon = getFallbackImages('common', 6);
+    }
+  } catch (err) {
+    filesCommon = getFallbackImages('common', 6);
+  }
+
+  filesCommon.forEach((file, index) => {
+    const id = `C-${String(index + 1).padStart(3, '0')}`;
+    CARD_DB[id] = {
+      emoji: '📢',
+      name: `공통 미션 ${String(index + 1).padStart(2, '0')}`,
+      desc: `카드를 열어 이미지에 지정된 공통 미션 행동을 수행하세요.`,
+      type: 'common',
+      image: `images/${file}`
+    };
+  });
+
+  // 3. 특수 카드 로딩
+  let filesSpecial = [];
+  try {
+    const resSpecial = await fetch('/api/special-images');
+    if (resSpecial.ok) {
+      filesSpecial = await resSpecial.json();
+    } else {
+      filesSpecial = getFallbackImages('special', 3);
+    }
+  } catch (err) {
+    filesSpecial = getFallbackImages('special', 3);
+  }
+
+  filesSpecial.forEach((file, index) => {
+    const id = `S-${String(index + 1).padStart(3, '0')}`;
+    CARD_DB[id] = {
+      emoji: '🌟',
+      name: `특수 미션 ${String(index + 1).padStart(2, '0')}`,
+      desc: `카드를 열어 이미지에 지정된 특수 미션 행동을 수행하세요.`,
+      type: 'special',
+      image: `images/${file}`
+    };
+  });
 }
 
 /**
