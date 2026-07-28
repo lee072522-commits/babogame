@@ -846,12 +846,10 @@ function renderBoardGrid(state, popTarget = null) {
   ['1팀', '2팀', '3팀'].forEach(team => {
     const isCurrentTurn = (team === currentActiveTeam);
     const displayName = (state.teamNames && state.teamNames[team]) || team;
-    const orderIdx = state.turnOrder ? state.turnOrder.indexOf(team) : -1;
     const teamColor = TEAM_CONFIG[team] ? TEAM_CONFIG[team].color : '#FFCC00';
     
     const teamPanel = document.createElement('div');
     teamPanel.className = 'team-panel';
-    // 선택한 팀 색상으로 테두리 적용
     teamPanel.style.borderColor = isCurrentTurn ? teamColor : 'rgba(0,0,0,0.5)';
     teamPanel.style.boxShadow = isCurrentTurn
       ? `0 0 18px ${teamColor}66, 0 6px 0 rgba(0,0,0,0.3)`
@@ -859,21 +857,6 @@ function renderBoardGrid(state, popTarget = null) {
     if (isCurrentTurn) {
       teamPanel.style.background = 'rgba(43, 24, 9, 0.7)';
       teamPanel.style.transform = 'translateY(-2px)';
-    }
-    
-    // 순서 뱃지
-    if (orderIdx >= 0) {
-      const badge = document.createElement('div');
-      const ordinals = ['🔥 1st', '2nd', '3rd', '4th', '5th', '6th'];
-      badge.className = 'turn-order-badge' + (orderIdx === 0 ? ' badge-1st' : orderIdx === 1 ? ' badge-2nd' : orderIdx === 2 ? ' badge-3rd' : '');
-      if (orderIdx === 0) {
-        badge.style.background = teamColor;
-        badge.style.borderColor = '#000';
-        badge.style.color = '#000';
-        badge.style.boxShadow = `0 0 12px ${teamColor}88`;
-      }
-      badge.textContent = ordinals[orderIdx] || `${orderIdx+1}th`;
-      teamPanel.appendChild(badge);
     }
     
     const title = document.createElement('div');
@@ -922,7 +905,6 @@ function renderBoardGrid(state, popTarget = null) {
   ['4팀', '5팀', '6팀'].forEach(team => {
     const isCurrentTurn = (team === currentActiveTeam);
     const displayName = (state.teamNames && state.teamNames[team]) || team;
-    const orderIdx = state.turnOrder ? state.turnOrder.indexOf(team) : -1;
     const teamColor = TEAM_CONFIG[team] ? TEAM_CONFIG[team].color : '#FFCC00';
     
     const teamPanel = document.createElement('div');
@@ -934,21 +916,6 @@ function renderBoardGrid(state, popTarget = null) {
     if (isCurrentTurn) {
       teamPanel.style.background = 'rgba(43, 24, 9, 0.7)';
       teamPanel.style.transform = 'translateY(-2px)';
-    }
-    
-    // 순서 뱃지
-    if (orderIdx >= 0) {
-      const badge = document.createElement('div');
-      const ordinals = ['🔥 1st', '2nd', '3rd', '4th', '5th', '6th'];
-      badge.className = 'turn-order-badge' + (orderIdx === 0 ? ' badge-1st' : orderIdx === 1 ? ' badge-2nd' : orderIdx === 2 ? ' badge-3rd' : '');
-      if (orderIdx === 0) {
-        badge.style.background = teamColor;
-        badge.style.borderColor = '#000';
-        badge.style.color = '#000';
-        badge.style.boxShadow = `0 0 12px ${teamColor}88`;
-      }
-      badge.textContent = ordinals[orderIdx] || `${orderIdx+1}th`;
-      teamPanel.appendChild(badge);
     }
     
     const title = document.createElement('div');
