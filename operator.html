@@ -12,6 +12,13 @@
   --wood-dark:#3D2610;--wood-mid:#6B4728;--wood-light:#A0714F;
   --gold:#C9922A;--gold-light:#E8B84B;--cream:#F5EDD8;
   --red:#C0392B;--text-dark:#1A0F00;
+  /* 팀 색상 */
+  --team-green: #27AE60;
+  --team-orange: #E67E22;
+  --team-blue: #2980B9;
+  --team-yellow: #F1C40F;
+  --team-purple: #8E44AD;
+  --team-pink: #E91E8C;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Noto Sans KR',sans-serif;background:#0f0800;color:var(--cream);min-height:100vh;}
@@ -71,10 +78,13 @@ body{font-family:'Noto Sans KR',sans-serif;background:#0f0800;color:var(--cream)
   padding:0.4rem 0.5rem;gap:0.45rem;
 }
 .tr-num{font-size:0.75rem;color:var(--gold);font-weight:bold;width:15px;text-align:center;}
-.tr-name-input{
-  background:transparent;border:none;border-bottom:1px dashed var(--wood-mid);
-  color:var(--cream);font-family:inherit;font-size:0.75rem;font-weight:bold;
-  outline:none;width:75px;padding:0.1rem 0.2rem;
+.tr-color-dot{
+  width:14px;height:14px;border-radius:50%;flex-shrink:0;
+  border:2px solid rgba(255,255,255,0.25);
+}
+.tr-team-label{
+  font-size:0.78rem;font-weight:bold;color:var(--cream);
+  width:42px;flex-shrink:0;white-space:nowrap;
 }
 .tr-slots{display:flex;gap:3px;flex:1;}
 .slot-container{display:flex;flex:1;gap:1px;}
@@ -252,11 +262,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:#0f0800;color:var(--cream)
         <!-- 6개 팀 데이터가 1행 단위로 렌더링됩니다 -->
       </div>
       <div style="display:flex; gap:0.4rem; margin-top:0.35rem;">
-        <button class="btn-shuffle" onclick="nextTurn()" style="flex:1.2; margin-top:0; border-style:solid; background:rgba(201,146,42,0.12);">
+        <button class="btn-shuffle" onclick="nextTurn()" style="flex:1; margin-top:0; border-style:solid; background:rgba(201,146,42,0.12);">
           ➔ 다음 차례 넘기기
-        </button>
-        <button class="btn-shuffle" onclick="shuffleTeams()" style="flex:0.8; margin-top:0;">
-          🎲 섞기
         </button>
       </div>
     </div>
@@ -281,16 +288,26 @@ let currentCard = null;
 let bcWindow = null;
 
 // 통합 게임 상태 정의
+// 팀 색상 & 이름 정의
+const TEAM_CONFIG = {
+  '1팀': { name: '그린',  color: '#27AE60' },
+  '2팀': { name: '렌지',  color: '#E67E22' },
+  '3팀': { name: '블루',  color: '#2980B9' },
+  '4팀': { name: '옐로',  color: '#F1C40F' },
+  '5팀': { name: '퍼플',  color: '#8E44AD' },
+  '6팀': { name: '핑크',  color: '#E91E8C' },
+};
+
 let gameState = {
   round: 1,
   turnOrder: ['1팀', '2팀', '3팀', '4팀', '5팀', '6팀'],
   teamNames: {
-    '1팀': '1팀',
-    '2팀': '2팀',
-    '3팀': '3팀',
-    '4팀': '4팀',
-    '5팀': '5팀',
-    '6팀': '6팀'
+    '1팀': '그린',
+    '2팀': '렌지',
+    '3팀': '블루',
+    '4팀': '옐로',
+    '5팀': '퍼플',
+    '6팀': '핑크'
   },
   commonCard: null,
   teamSlots: {
@@ -302,9 +319,9 @@ let gameState = {
     '6팀': [null, null],
   },
   activeRules: [],
-  highlightCard: null, // 중앙 크게 보여주는 카드 정보
-  lastPlaced: null, // 슬롯 이동 연출용 배치 정보
-  usedCardCodes: [] // 송출 완료된 카드 코드 이력
+  highlightCard: null,
+  lastPlaced: null,
+  usedCardCodes: []
 };
 
 // 페이지 로드 시 로컬스토리지에서 기존 상태 복구
@@ -317,8 +334,8 @@ function loadSavedState() {
         gameState = parsed.state;
         if (!gameState.teamNames) {
           gameState.teamNames = {
-            '1팀': '1팀', '2팀': '2팀', '3팀': '3팀',
-            '4팀': '4팀', '5팀': '5팀', '6팀': '6팀'
+            '1팀': '그린', '2팀': '렌지', '3팀': '블루',
+            '4팀': '옐로', '5팀': '퍼플', '6팀': '핑크'
           };
         }
         if (!gameState.usedCardCodes) {
@@ -420,13 +437,12 @@ function resetGame() {
     return;
   }
   
-  const currentNames = gameState.teamNames;
   gameState = {
     round: 1,
     turnOrder: ['1팀', '2팀', '3팀', '4팀', '5팀', '6팀'],
-    teamNames: currentNames || {
-      '1팀': '1팀', '2팀': '2팀', '3팀': '3팀',
-      '4팀': '4팀', '5팀': '5팀', '6팀': '6팀'
+    teamNames: {
+      '1팀': '그린', '2팀': '렌지', '3팀': '블루',
+      '4팀': '옐로', '5팀': '퍼플', '6팀': '핑크'
     },
     commonCard: null,
     teamSlots: {
@@ -646,9 +662,11 @@ function renderTeamBoard(){
   // 6개 팀 1행씩 통합 렌더링
   gameState.turnOrder.forEach((team, idx) => {
     const currentName = gameState.teamNames[team] || team;
+    const teamColor = TEAM_CONFIG[team] ? TEAM_CONFIG[team].color : '#888';
     
     const row = document.createElement('div');
     row.className = 'team-row';
+    row.style.borderLeft = `3px solid ${teamColor}`;
     
     // 1. 순서 번호
     const numSpan = document.createElement('span');
@@ -656,22 +674,21 @@ function renderTeamBoard(){
     numSpan.textContent = idx + 1;
     row.appendChild(numSpan);
     
-    // 2. 팀명 입력창
-    const nameInput = document.createElement('input');
-    nameInput.type = 'text';
-    nameInput.className = 'tr-name-input';
-    nameInput.value = currentName;
-    nameInput.placeholder = `${team} 이름`;
-    nameInput.onchange = (e) => updateTeamName(team, e.target.value);
-    nameInput.onkeydown = (e) => {
-      if (e.key === 'Enter') {
-        e.target.blur();
-        updateTeamName(team, e.target.value);
-      }
-    };
-    row.appendChild(nameInput);
+    // 2. 팀 색상 원형 뱃지
+    const colorDot = document.createElement('span');
+    colorDot.className = 'tr-color-dot';
+    colorDot.style.background = teamColor;
+    colorDot.style.boxShadow = `0 0 6px ${teamColor}88`;
+    row.appendChild(colorDot);
     
-    // 3. 슬롯 1 & 2
+    // 3. 팀 이름 텍스트 (고정)
+    const teamLabel = document.createElement('span');
+    teamLabel.className = 'tr-team-label';
+    teamLabel.textContent = currentName;
+    teamLabel.style.color = teamColor;
+    row.appendChild(teamLabel);
+    
+    // 4. 슬롯 1 & 2
     const slotsDiv = document.createElement('div');
     slotsDiv.className = 'tr-slots';
     
@@ -703,7 +720,7 @@ function renderTeamBoard(){
     }
     row.appendChild(slotsDiv);
     
-    // 4. 순서 조정 화살표
+    // 5. 순서 조정 화살표
     const ctrlsDiv = document.createElement('div');
     ctrlsDiv.className = 'tr-ctrls';
     
@@ -721,7 +738,7 @@ function renderTeamBoard(){
     const downBtn = document.createElement('button');
     downBtn.className = 'btn-order-move';
     downBtn.textContent = '▼';
-    if (idx === 5) {
+    if (idx === gameState.turnOrder.length - 1) {
       downBtn.style.opacity = '0.2';
       downBtn.style.pointerEvents = 'none';
     } else {

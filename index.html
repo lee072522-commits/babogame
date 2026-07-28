@@ -16,6 +16,13 @@
   --wood-light: #A0714F;
   --wood-dark: #3D2610;
   --text-dark: #1A0F00;
+  /* 팀 색상 */
+  --team-green: #27AE60;
+  --team-orange: #E67E22;
+  --team-blue: #2980B9;
+  --team-yellow: #F1C40F;
+  --team-purple: #8E44AD;
+  --team-pink: #E91E8C;
 }
 
 * {
@@ -132,44 +139,44 @@ body::before {
   margin-top: 0.5rem;
 }
 
-/* 팀 순서 바 */
-.turn-order-container {
-  display: flex;
-  gap: 0.6rem;
+/* 팀 패널 순서 뱃지 */
+.turn-order-badge {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.65);
-  padding: 0.45rem 1.4rem;
-  border-radius: 8px;
-  border: 3px solid #000;
-  margin-top: 0.6rem;
-  box-shadow: 0 6px 0 rgba(0,0,0,0.3);
+  font-size: 0.72rem;
+  font-weight: bold;
+  padding: 0.18rem 0.55rem;
+  border-radius: 20px;
+  border: 2px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 0.04em;
+  margin-bottom: 0.4rem;
+  transition: all 0.3s;
 }
-.turn-team-chip {
-  padding: 0.35rem 0.85rem;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.08);
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.6);
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  border: 2px solid transparent;
-  transition: all 0.2s;
-}
-.turn-team-chip.active {
+.turn-order-badge.badge-1st {
   background: #FFCC00;
   border-color: #000;
   color: #000;
-  transform: scale(1.08);
-  box-shadow: 0 0 10px rgba(255, 204, 0, 0.4);
-  font-weight: bold;
+  font-size: 0.85rem;
+  padding: 0.25rem 0.75rem;
+  box-shadow: 0 0 12px rgba(255,204,0,0.5);
+  animation: badge-pulse 1.8s ease-in-out infinite;
 }
-.turn-arrow {
-  color: #FFCC00;
-  font-size: 0.8rem;
-  opacity: 0.8;
-  margin-left: 0.2rem;
+.turn-order-badge.badge-2nd {
+  background: rgba(255,255,255,0.18);
+  border-color: rgba(255,255,255,0.4);
+  color: rgba(255,255,255,0.8);
+}
+.turn-order-badge.badge-3rd {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.6);
+}
+@keyframes badge-pulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(255,204,0,0.5); }
+  50% { box-shadow: 0 0 22px rgba(255,204,0,0.85); }
 }
 
 /* ── 중앙 메인 보드 (공통슬롯) ── */
@@ -244,59 +251,7 @@ body::before {
   border-color: #000;
   background: #F4ECF7;
 }
-/* ── 중앙 차례 대형 알림판 ── */
-.turn-intro-wrap {
-  position: absolute;
-  top: 52%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.9);
-  text-align: center;
-  z-index: 10;
-  transition: opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1), transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
-  opacity: 0;
-  pointer-events: none;
-}
-.turn-intro-wrap.show {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-  pointer-events: auto;
-}
-.turn-intro-panel {
-  background: rgba(0, 0, 0, 0.85);
-  border: 4px solid #000;
-  border-radius: 16px;
-  padding: 2.2rem 4rem;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.8rem;
-}
-.turn-intro-label {
-  font-size: 0.9rem;
-  font-weight: bold;
-  color: rgba(255,255,255,0.4);
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-}
-.turn-intro-team {
-  font-size: 3.2rem;
-  font-weight: 900;
-  color: #FFCC00;
-  -webkit-text-stroke: 1.5px #000;
-  text-shadow: 3px 3px 0 #000;
-  animation: float-team 3s ease-in-out infinite;
-}
-@keyframes float-team {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-8px) scale(1.02); }
-}
-.turn-intro-action {
-  font-size: 1rem;
-  font-weight: bold;
-  color: var(--cream);
-  letter-spacing: 0.05em;
-}
+/* (turn-intro 제거됨) */
 
 /* ── 양옆 팀별 패널 ── */
 .team-panel {
@@ -312,12 +267,7 @@ body::before {
   flex-direction: column;
   align-items: center;
 }
-.team-panel.active-turn {
-  border-color: #FFCC00;
-  box-shadow: 0 0 15px rgba(255, 204, 0, 0.4), 0 6px 0 rgba(0,0,0,0.3);
-  background: rgba(43, 24, 9, 0.7);
-  transform: translateY(-2px);
-}
+/* .team-panel.active-turn 스타일은 JS에서 직접 적용 */
 .team-name-title {
   font-size: 1.35rem;
   font-weight: bold;
@@ -325,10 +275,6 @@ body::before {
   margin-bottom: 0.8rem;
   letter-spacing: 0.08em;
   transition: color 0.3s;
-}
-.team-panel.active-turn .team-name-title {
-  color: #FFCC00;
-  text-shadow: 1px 1px 0 #000;
 }
 
 .team-slots-container {
@@ -543,9 +489,6 @@ body::before {
   <div class="center-column">
     <div class="bc-header-wrap">
       <div class="bc-title">BABO TIME</div>
-      <div class="turn-order-container" id="turn-order-container">
-        <!-- 팀 순서 칩들이 로드됩니다 -->
-      </div>
     </div>
     
     <!-- 중앙 메인 보드 -->
@@ -556,15 +499,6 @@ body::before {
           <div style="font-size:3.2rem; opacity:0.3;">📢</div>
           <div style="text-align:center; font-size:1.05rem; letter-spacing:0.04em;">공통 규칙<br>카드 슬롯</div>
         </div>
-      </div>
-    </div>
-    
-    <!-- ── 중앙 차례 대형 알림판 ── -->
-    <div class="turn-intro-wrap" id="turn-intro">
-      <div class="turn-intro-panel">
-        <div class="turn-intro-label">NEXT TURN</div>
-        <div class="turn-intro-team" id="intro-team-name">1팀</div>
-        <div class="turn-intro-action">차례입니다! 미션을 준비하세요.</div>
       </div>
     </div>
   </div>
@@ -607,6 +541,16 @@ let renderedState = null;
 // 이벤트 트래킹용 타임스탬프
 let processedHighlightTs = 0;
 let processedPlacementTs = 0;
+
+// 팀 색상 & 이름 정의
+const TEAM_CONFIG = {
+  '1팀': { name: '그린',  color: '#27AE60' },
+  '2팀': { name: '렌지',  color: '#E67E22' },
+  '3팀': { name: '블루',  color: '#2980B9' },
+  '4팀': { name: '옐로',  color: '#F1C40F' },
+  '5팀': { name: '퍼플',  color: '#8E44AD' },
+  '6팀': { name: '핑크',  color: '#E91E8C' },
+};
 
 /* ── localStorage 변화 감지 ── */
 window.addEventListener('storage', e => {
@@ -688,28 +632,6 @@ function handleMessage(data) {
 // 통합 동기화 처리
 function syncGameState(state) {
 
-
-  // 1. 팀 게임 순서 바 렌더링 (동적 팀 이름 매핑 적용)
-  const orderContainer = document.getElementById('turn-order-container');
-  orderContainer.innerHTML = '';
-  state.turnOrder.forEach((team, idx) => {
-    const chip = document.createElement('div');
-    chip.className = idx === 0 ? 'turn-team-chip active' : 'turn-team-chip';
-    chip.textContent = (state.teamNames && state.teamNames[team]) || team;
-    orderContainer.appendChild(chip);
-    if (idx < state.turnOrder.length - 1) {
-      const arrow = document.createElement('span');
-      arrow.className = 'turn-arrow';
-      arrow.textContent = '➔';
-      orderContainer.appendChild(arrow);
-    }
-  });
-
-  // 2. 중앙 차례 안내 텍스트 렌더링 (동적 팀 이름 매핑 적용)
-  const nextTeam = state.turnOrder && state.turnOrder[0] ? state.turnOrder[0] : '';
-  const nextTeamDisplayName = (state.teamNames && state.teamNames[nextTeam]) || nextTeam;
-  document.getElementById('intro-team-name').textContent = nextTeamDisplayName;
-
   // 초기화/리셋으로 인해 하이라이트가 취소 또는 사라진 경우 방어 로직
   if (!state.highlightCard) {
     processedHighlightTs = 0;
@@ -718,22 +640,17 @@ function syncGameState(state) {
     processedPlacementTs = 0;
   }
 
-  // 3. 드로우 하이라이트 연출 처리
+  // 1. 드로우 하이라이트 연출 처리
   if (state.highlightCard && state.highlightCard.ts > processedHighlightTs) {
     processedHighlightTs = state.highlightCard.ts;
-    // 중앙 차례 안내 페이드아웃
-    document.getElementById('turn-intro').classList.remove('show');
     triggerDrawAnimation(state.highlightCard.card);
   }
 
-  // 4. 슬롯 배치 연출 (lastPlaced) 처리
+  // 2. 슬롯 배치 연출 (lastPlaced) 처리
   if (state.lastPlaced && state.lastPlaced.ts > processedPlacementTs) {
     processedPlacementTs = state.lastPlaced.ts;
-    // 차례 안내 숨김 유지
-    document.getElementById('turn-intro').classList.remove('show');
     triggerPlacementAnimation(state.lastPlaced, state);
   } else {
-    // 하이라이트/배치 연출 중이 아닐 때 (또는 리셋/취소 시)
     // 하이라이트 중인 카드가 없을 때(즉 리셋되거나 취소되었을 때)만 오버레이를 닫아줍니다!
     if (!state.highlightCard) {
       const overlay = document.getElementById('draw-overlay');
@@ -747,8 +664,6 @@ function syncGameState(state) {
       if (drawCard) drawCard.className = 'draw-card';
 
       renderBoardGrid(state);
-      // 중앙 차례 안내 패널 노출
-      document.getElementById('turn-intro').classList.add('show');
     } else {
       renderBoardGrid(state);
     }
@@ -880,16 +795,9 @@ function triggerPlacementAnimation(placement, state) {
       overlay.style.display = 'none';
       drawCard.className = 'draw-card';
       renderBoardGrid(state, placement); // 배치 타겟 팝 애니메이션 트리거
-      
-      // 턴 로테이션 후 새로운 0번째 팀을 중앙 차례 안내판으로 노출!
-      const nextTeam = state.turnOrder && state.turnOrder[0] ? state.turnOrder[0] : '';
-      const nextTeamDisplayName = (state.teamNames && state.teamNames[nextTeam]) || nextTeam;
-      document.getElementById('intro-team-name').textContent = nextTeamDisplayName;
-      document.getElementById('turn-intro').classList.add('show');
     }, 600);
   } else {
     renderBoardGrid(state);
-    document.getElementById('turn-intro').classList.add('show');
   }
 }
 
@@ -938,13 +846,41 @@ function renderBoardGrid(state, popTarget = null) {
   ['1팀', '2팀', '3팀'].forEach(team => {
     const isCurrentTurn = (team === currentActiveTeam);
     const displayName = (state.teamNames && state.teamNames[team]) || team;
+    const orderIdx = state.turnOrder ? state.turnOrder.indexOf(team) : -1;
+    const teamColor = TEAM_CONFIG[team] ? TEAM_CONFIG[team].color : '#FFCC00';
     
     const teamPanel = document.createElement('div');
-    teamPanel.className = isCurrentTurn ? 'team-panel active-turn' : 'team-panel';
+    teamPanel.className = 'team-panel';
+    // 선택한 팀 색상으로 테두리 적용
+    teamPanel.style.borderColor = isCurrentTurn ? teamColor : 'rgba(0,0,0,0.5)';
+    teamPanel.style.boxShadow = isCurrentTurn
+      ? `0 0 18px ${teamColor}66, 0 6px 0 rgba(0,0,0,0.3)`
+      : '0 6px 0 rgba(0,0,0,0.3)';
+    if (isCurrentTurn) {
+      teamPanel.style.background = 'rgba(43, 24, 9, 0.7)';
+      teamPanel.style.transform = 'translateY(-2px)';
+    }
+    
+    // 순서 뱃지
+    if (orderIdx >= 0) {
+      const badge = document.createElement('div');
+      const ordinals = ['🔥 1st', '2nd', '3rd', '4th', '5th', '6th'];
+      badge.className = 'turn-order-badge' + (orderIdx === 0 ? ' badge-1st' : orderIdx === 1 ? ' badge-2nd' : orderIdx === 2 ? ' badge-3rd' : '');
+      if (orderIdx === 0) {
+        badge.style.background = teamColor;
+        badge.style.borderColor = '#000';
+        badge.style.color = '#000';
+        badge.style.boxShadow = `0 0 12px ${teamColor}88`;
+      }
+      badge.textContent = ordinals[orderIdx] || `${orderIdx+1}th`;
+      teamPanel.appendChild(badge);
+    }
     
     const title = document.createElement('div');
     title.className = 'team-name-title';
-    title.textContent = isCurrentTurn ? `🔥 ${displayName}` : displayName;
+    title.style.color = isCurrentTurn ? teamColor : 'rgba(255,255,255,0.8)';
+    if (isCurrentTurn) title.style.textShadow = '1px 1px 0 #000';
+    title.textContent = displayName;
     teamPanel.appendChild(title);
     
     const slotsContainer = document.createElement('div');
@@ -986,13 +922,40 @@ function renderBoardGrid(state, popTarget = null) {
   ['4팀', '5팀', '6팀'].forEach(team => {
     const isCurrentTurn = (team === currentActiveTeam);
     const displayName = (state.teamNames && state.teamNames[team]) || team;
+    const orderIdx = state.turnOrder ? state.turnOrder.indexOf(team) : -1;
+    const teamColor = TEAM_CONFIG[team] ? TEAM_CONFIG[team].color : '#FFCC00';
     
     const teamPanel = document.createElement('div');
-    teamPanel.className = isCurrentTurn ? 'team-panel active-turn' : 'team-panel';
+    teamPanel.className = 'team-panel';
+    teamPanel.style.borderColor = isCurrentTurn ? teamColor : 'rgba(0,0,0,0.5)';
+    teamPanel.style.boxShadow = isCurrentTurn
+      ? `0 0 18px ${teamColor}66, 0 6px 0 rgba(0,0,0,0.3)`
+      : '0 6px 0 rgba(0,0,0,0.3)';
+    if (isCurrentTurn) {
+      teamPanel.style.background = 'rgba(43, 24, 9, 0.7)';
+      teamPanel.style.transform = 'translateY(-2px)';
+    }
+    
+    // 순서 뱃지
+    if (orderIdx >= 0) {
+      const badge = document.createElement('div');
+      const ordinals = ['🔥 1st', '2nd', '3rd', '4th', '5th', '6th'];
+      badge.className = 'turn-order-badge' + (orderIdx === 0 ? ' badge-1st' : orderIdx === 1 ? ' badge-2nd' : orderIdx === 2 ? ' badge-3rd' : '');
+      if (orderIdx === 0) {
+        badge.style.background = teamColor;
+        badge.style.borderColor = '#000';
+        badge.style.color = '#000';
+        badge.style.boxShadow = `0 0 12px ${teamColor}88`;
+      }
+      badge.textContent = ordinals[orderIdx] || `${orderIdx+1}th`;
+      teamPanel.appendChild(badge);
+    }
     
     const title = document.createElement('div');
     title.className = 'team-name-title';
-    title.textContent = isCurrentTurn ? `🔥 ${displayName}` : displayName;
+    title.style.color = isCurrentTurn ? teamColor : 'rgba(255,255,255,0.8)';
+    if (isCurrentTurn) title.style.textShadow = '1px 1px 0 #000';
+    title.textContent = displayName;
     teamPanel.appendChild(title);
     
     const slotsContainer = document.createElement('div');
