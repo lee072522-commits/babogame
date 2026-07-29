@@ -467,9 +467,18 @@ body::before {
 }
 .mini-card img {
   object-fit: cover;
-}
-.common-card img {
-  object-fit: cover;
+/* ── 반응형 비율 유지 스케일링 컨테이너 ── */
+#app-scaler {
+  width: 1920px;
+  height: 1080px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: center center;
+  transform: translate(-50%, -50%) scale(1);
+  box-sizing: border-box;
+  padding: 1.5rem;
+  will-change: transform;
 }
 
 
@@ -477,6 +486,7 @@ body::before {
 </head>
 <body>
 
+<div id="app-scaler">
 <div class="live-badge">● LIVE</div>
 <div class="conn-status" id="conn-status">🟡 원격 연결 대기 중...</div>
 
@@ -1040,6 +1050,25 @@ function renderBoardGrid(state, popTarget = null) {
   });
 }
 
+// ── 반응형 비율 자동 스케일링 함수 ──
+function autoScaleViewport() {
+  const scaler = document.getElementById('app-scaler');
+  if (!scaler) return;
+  
+  const baseWidth = 1920;
+  const baseHeight = 1080;
+  
+  const scaleX = window.innerWidth / baseWidth;
+  const scaleY = window.innerHeight / baseHeight;
+  const scale = Math.min(scaleX, scaleY);
+  
+  scaler.style.transform = `translate(-50%, -50%) scale(${scale})`;
+}
+
+window.addEventListener('resize', autoScaleViewport);
+window.addEventListener('DOMContentLoaded', autoScaleViewport);
+autoScaleViewport();
+
 // 최초 로드 시 기존 상태 로드
 async function initBroadcast() {
   await loadDynamicCards();
@@ -1055,5 +1084,6 @@ async function initBroadcast() {
 }
 initBroadcast();
 </script>
+</div><!-- /#app-scaler -->
 </body>
 </html>
