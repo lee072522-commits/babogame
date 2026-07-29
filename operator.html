@@ -228,6 +228,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#0f0800;color:var(--cream)
 .card-thumb.selected{border-color:var(--gold);background:rgba(201,146,42,.15);}
 .card-thumb.blue-team-card { border-color: #0A369D; }
 .card-thumb.orange-team-card { border-color: #e67e22; }
+.card-thumb.gray-team-card { border-color: #6c757d; }
 
 /* 배치됨(사용됨) 마크 */
 .card-thumb.used {
@@ -1029,24 +1030,27 @@ function buildGrid(){
   
   const groups = {
     common: [],
-    team_blue: [],
     team_orange: [],
+    team_blue: [],
+    team_gray: [],
     special: []
   };
   
   Object.entries(CARD_DB).forEach(([code, card]) => {
     if (card.type === 'team') {
-      if (card.color === 'blue') {
-        groups.team_blue.push({code, ...card});
-      } else {
+      if (card.color === 'orange') {
         groups.team_orange.push({code, ...card});
+      } else if (card.color === 'blue') {
+        groups.team_blue.push({code, ...card});
+      } else if (card.color === 'gray') {
+        groups.team_gray.push({code, ...card});
       }
     } else {
       groups[card.type].push({code, ...card});
     }
   });
 
-  const types = ['common', 'team_blue', 'team_orange', 'special'];
+  const types = ['common', 'team_orange', 'team_blue', 'team_gray', 'special'];
 
   types.forEach(type => {
     const meta = TYPE_META[type];
@@ -1065,8 +1069,9 @@ function buildGrid(){
       el.id = 'thumb-' + card.code;
       el.setAttribute('data-code', card.code);
       
-      if (type === 'team_blue') el.classList.add('blue-team-card');
       if (type === 'team_orange') el.classList.add('orange-team-card');
+      if (type === 'team_blue') el.classList.add('blue-team-card');
+      if (type === 'team_gray') el.classList.add('gray-team-card');
 
       const mediaHtml = card.image
         ? `<div class="ct-emoji" style="height: 40px; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 4px; margin-bottom: 0.25rem;">

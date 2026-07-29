@@ -54,13 +54,20 @@ async function loadDynamicCards() {
   files.forEach((file, index) => {
     const id = `T-${String(index + 1).padStart(3, '0')}`;
     const num = index + 1;
-    const isBlue = num <= 31;
+    let cardColor = 'orange';
+    if (num <= 31) {
+      cardColor = 'orange';
+    } else if (num <= 61) {
+      cardColor = 'blue';
+    } else {
+      cardColor = 'gray';
+    }
     CARD_DB[id] = {
       emoji: '🃏',
       name: `팀 미션 ${String(num).padStart(2, '0')}`,
       desc: `카드를 열어 이미지에 지정된 팀별 미션 행동을 수행하세요.`,
       type: 'team',
-      color: isBlue ? 'blue' : 'orange',
+      color: cardColor,
       image: `images/${file}`
     };
   });
@@ -124,7 +131,8 @@ async function loadDynamicCards() {
 const TYPE_META = {
   common: { label: '공통카드', color: '#155724', bg: '#D4EDDA' },
   team: { label: '팀별카드', color: '#721C24', bg: '#F8D7DA' },
-  team_blue: { label: '파란 팀별카드', color: '#0A369D', bg: '#D2E4FC' },
   team_orange: { label: '주황 팀별카드', color: '#A04000', bg: '#FDEBD0' },
+  team_blue: { label: '파란 팀별카드', color: '#0A369D', bg: '#D2E4FC' },
+  team_gray: { label: '회색 팀별카드', color: '#495057', bg: '#E9ECEF' },
   special: { label: '특수카드', color: '#5A2C85', bg: '#E8D8F8' },
 };
