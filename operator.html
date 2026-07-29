@@ -655,9 +655,12 @@ function filterCards() {
   thumbs.forEach(thumb => {
     const code = thumb.getAttribute('data-code');
     const card = CARD_DB[code];
+    if (!card) return;
+    const searchKey = card.searchKey ? card.searchKey.toLowerCase() : '';
     const match = card.name.toLowerCase().includes(query) || 
                   card.desc.toLowerCase().includes(query) || 
-                  code.toLowerCase().includes(query);
+                  code.toLowerCase().includes(query) ||
+                  searchKey.includes(query);
     
     if (match) {
       thumb.style.display = 'block';
