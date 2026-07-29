@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>바보타임 — 송출 화면</title>
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mqtt@5.3.4/dist/mqtt.min.js"></script>
 <script src="cards.js"></script>
 <style>
 @import url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@2.1/NeoDunggeunmo.woff');
@@ -477,6 +478,7 @@ body::before {
 <body>
 
 <div class="live-badge">● LIVE</div>
+<div class="conn-status" id="conn-status">🟡 원격 연결 대기 중...</div>
 
 <!-- ── 메인 3컬럼 레이아웃 ── -->
 <div class="main-layout">
@@ -552,47 +554,99 @@ const TEAM_CONFIG = {
   '6팀': { name: '핑크',  color: '#E91E8C' },
 };
 
-/* ── localStorage 변화 감지 ── */
-window.addEventListener('storage', e => {
-  if (e.key !== 'babo_broadcast') return;
-  try {
-    const data = JSON.parse(e.newValue);
-    if (!data || data.ts <= lastTs) return;
-    lastTs = data.ts;
-    handleMessage(data);
-  } catch(err) {}
-});
+/* ── 무설정 실시간 원격 수신기 (MQTT over WebSocket + PeerJS + LocalStorage) ── */
+let currentRoomId = (new URLSearchParams(window.location.search)).get('room') || localStorage.getItem('babo_room_id') || 'babo-game-live-777';
+let mqttClient = null;
 
-/* ── 폴링 동기화 ── */
-setInterval(() => {
-  const raw = localStorage.getItem('babo_broadcast');
-  if (!raw || raw === _lastRaw) return;
-  _lastRaw = raw;
-  try {
-    const data = JSON.parse(raw);
-    if (!data || data.ts <= lastTs) return;
-    lastTs = data.ts;
-    handleMessage(data);
-  } catch(err) {}
-}, 250);
+function getMqttTopic() {
+  return 'babogame/room/' + currentRoomId + '/state';
+}
 
-/* ── PeerJS 원격 네트워크 실시간 수신기 (무설정 자동연동) ── */
-const SYSTEM_ROOM_ID = 'babo-game-display-host-777';
+function updateConnStatus(msg, isSuccess = false) {
+  const statusEl = document.getElementById('conn-status');
+  if (statusEl) {
+    statusEl.textContent = msg + ' (방: ' + currentRoomId + ')';
+    statusEl.style.color = isSuccess ? 'rgba(46, 204, 113, 0.9)' : 'rgba(241, 196, 15, 0.7)';
+  }
+}
+
+/* ── 1. MQTT 실시간 수신기 ── */
+function initMqttReceiver() {
+  if (mqttClient) {
+    try { mqttClient.end(true); } catch(e) {}
+  }
+  updateConnStatus('🟡 MQTT 연결 중...');
+
+  const brokers = [
+    'wss://broker.emqx.io:8084/mqtt',
+    'wss://test.mosquitto.org:8081',
+    'wss://broker.hivemq.com:8884/mqtt'
+  ];
+
+  function connectBroker(idx) {
+    if (typeof mqtt === 'undefined') return;
+    const url = brokers[idx % brokers.length];
+    const clientId = 'babo_disp_' + Math.random().toString(16).substring(2, 10);
+
+    try {
+      mqttClient = mqtt.connect(url, {
+        clientId: clientId,
+        clean: true,
+        connectTimeout: 4000,
+        reconnectPeriod: 3000
+      });
+
+      mqttClient.on('connect', () => {
+        console.log('MQTT 연결 성공:', url);
+        updateConnStatus('🟢 실시간 연동 완료', true);
+        const topic = getMqttTopic();
+        mqttClient.subscribe(topic, { qos: 1 }, (err) => {
+          if (err) console.error('MQTT 구독 실패:', err);
+          else console.log('MQTT 구독 성공:', topic);
+        });
+      });
+
+      mqttClient.on('message', (topic, message) => {
+        try {
+          const data = JSON.parse(message.toString());
+          if (data && data.ts && data.ts > lastTs) {
+            lastTs = data.ts;
+            handleMessage(data);
+          }
+        } catch(err) {
+          console.error('MQTT 메시지 파싱 오류:', err);
+        }
+      });
+
+      mqttClient.on('error', (err) => {
+        console.warn('MQTT 오류:', err);
+      });
+
+      mqttClient.on('offline', () => {
+        updateConnStatus('🟡 MQTT 재연결 중...');
+      });
+    } catch(e) {
+      console.error('MQTT 초기화 실패:', e);
+    }
+  }
+
+  connectBroker(0);
+}
+
+/* ── 2. PeerJS Direct 수신기 ── */
 let peerDisplay = null;
 
 function initPeerReceiver() {
   if (typeof Peer === 'undefined') return;
   try {
-    peerDisplay = new Peer(SYSTEM_ROOM_ID);
+    peerDisplay = new Peer(currentRoomId);
 
     peerDisplay.on('open', (id) => {
-      console.log('실시간 원격 수신기 준비 완료:', id);
+      console.log('PeerJS 수신기 준비 완료:', id);
     });
 
     peerDisplay.on('connection', (conn) => {
-      const connStatus = document.getElementById('conn-status');
-      if (connStatus) connStatus.textContent = '🟢 원격 운영 패널 실시간 연결됨';
-
+      updateConnStatus('🟢 PeerJS 직접 연결됨', true);
       conn.on('data', (data) => {
         if (data && data.ts && data.ts > lastTs) {
           lastTs = data.ts;
@@ -603,8 +657,7 @@ function initPeerReceiver() {
 
     peerDisplay.on('error', (err) => {
       if (err.type === 'unavailable-id') {
-        // 호스트 ID가 이미 생성된 경우 보조 채널 수신
-        const fallbackPeer = new Peer(SYSTEM_ROOM_ID + '-sub-' + Math.floor(Math.random() * 1000));
+        const fallbackPeer = new Peer(currentRoomId + '-sub-' + Math.floor(Math.random() * 1000));
         fallbackPeer.on('connection', (conn) => {
           conn.on('data', (data) => {
             if (data && data.ts && data.ts > lastTs) {
@@ -619,11 +672,37 @@ function initPeerReceiver() {
     console.error('PeerJS 수신기 오류:', err);
   }
 }
-initPeerReceiver();
+
+setTimeout(() => {
+  initMqttReceiver();
+  initPeerReceiver();
+}, 200);
+
+/* ── 3. localStorage 및 폴링 감지 ── */
+window.addEventListener('storage', e => {
+  if (e.key !== 'babo_broadcast') return;
+  try {
+    const data = JSON.parse(e.newValue);
+    if (!data || data.ts <= lastTs) return;
+    lastTs = data.ts;
+    handleMessage(data);
+  } catch(err) {}
+});
+
+setInterval(() => {
+  const raw = localStorage.getItem('babo_broadcast');
+  if (!raw || raw === _lastRaw) return;
+  _lastRaw = raw;
+  try {
+    const data = JSON.parse(raw);
+    if (!data || data.ts <= lastTs) return;
+    lastTs = data.ts;
+    handleMessage(data);
+  } catch(err) {}
+}, 250);
 
 function handleMessage(data) {
-  const connStatus = document.getElementById('conn-status');
-  if (connStatus) connStatus.textContent = '🟢 운영 패널 연결됨';
+  updateConnStatus('🟢 실시간 연동 완료', true);
   if (data.type === 'sync_state' && data.state) {
     syncGameState(data.state);
   }
