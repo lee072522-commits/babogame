@@ -119,6 +119,25 @@ body.pseudo-fullscreen {
   overflow: hidden !important;
 }
 
+/* ── 전체 화면 자동 스케일링 래퍼 (16:9 기준 1920x1080) ── */
+.scale-wrapper {
+  width: 1920px;
+  height: 1080px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  transform-origin: center center;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.5rem 2.5rem;
+  box-sizing: border-box;
+}
+
 /* ── 전체 3컬럼 레이아웃 ── */
 .main-layout {
   width: 100%;
@@ -688,34 +707,37 @@ body.pseudo-fullscreen {
   </div>
 </div>
 
-<!-- ── 메인 3컬럼 레이아웃 ── -->
-<div class="main-layout">
-  <!-- 좌측 컬럼 (1~3팀 고정) -->
-  <div class="side-column" id="left-teams">
-    <!-- 1~3팀 보드가 동적 로드됩니다 -->
-  </div>
-  
-  <!-- 중앙 컬럼 -->
-  <div class="center-column">
-    <div class="bc-header-wrap">
-      <div class="bc-title">BABO TIME</div>
+<!-- ── 자동 스케일링 래퍼 (1920x1080) ── -->
+<div class="scale-wrapper" id="scale-wrapper">
+  <!-- ── 메인 3컬럼 레이아웃 ── -->
+  <div class="main-layout">
+    <!-- 좌측 컬럼 (1~3팀 고정) -->
+    <div class="side-column" id="left-teams">
+      <!-- 1~3팀 보드가 동적 로드됩니다 -->
     </div>
     
-    <!-- 중앙 메인 보드 -->
-    <div class="board-center">
-      <!-- 공통 카드 슬롯 (확대된 크기) -->
-      <div class="common-card-slot" id="common-slot-wrap">
-        <div class="slot-empty">
-          <div style="font-size:3.2rem; opacity:0.3;">📢</div>
-          <div style="text-align:center; font-size:1.05rem; letter-spacing:0.04em;">공통 규칙<br>카드 슬롯</div>
+    <!-- 중앙 컬럼 -->
+    <div class="center-column">
+      <div class="bc-header-wrap">
+        <div class="bc-title">BABO TIME</div>
+      </div>
+      
+      <!-- 중앙 메인 보드 -->
+      <div class="board-center">
+        <!-- 공통 카드 슬롯 (확대된 크기) -->
+        <div class="common-card-slot" id="common-slot-wrap">
+          <div class="slot-empty">
+            <div style="font-size:3.2rem; opacity:0.3;">📢</div>
+            <div style="text-align:center; font-size:1.05rem; letter-spacing:0.04em;">공통 규칙<br>카드 슬롯</div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- 우측 컬럼 (4~6팀 고정) -->
-  <div class="side-column" id="right-teams">
-    <!-- 4~6팀 보드가 동적 로드됩니다 -->
+    <!-- 우측 컬럼 (4~6팀 고정) -->
+    <div class="side-column" id="right-teams">
+      <!-- 4~6팀 보드가 동적 로드됩니다 -->
+    </div>
   </div>
 </div>
 
@@ -1625,9 +1647,40 @@ function updateFullscreenBtn() {
   btn.innerHTML = isFs ? '🗗 창모드' : '⛶ 전체화면';
 }
 
-document.addEventListener('fullscreenchange', updateFullscreenBtn);
-document.addEventListener('webkitfullscreenchange', updateFullscreenBtn);
-document.addEventListener('msfullscreenchange', updateFullscreenBtn);
+document.addEventListener('fullscreenchange', () => { updateFullscreenBtn(); autoScale(); });
+document.addEventListener('webkitfullscreenchange', () => { updateFullscreenBtn(); autoScale(); });
+document.addEventListener('msfullscreenchange', () => { updateFullscreenBtn(); autoScale(); });
+
+// ── 해상도/전자기기별 화면 잘림 방지 Auto Scaling ──
+function autoScale() {
+  const wrapper = document.getElementById('scale-wrapper');
+  if (!wrapper) return;
+
+  const baseWidth = 1920;
+  const baseHeight = 1080;
+
+  // Visual Viewport 지원 시 더 정확한 디스플레이 크기 계산
+  const windowWidth = (window.visualViewport && window.visualViewport.width) ? window.visualViewport.width : window.innerWidth;
+  const windowHeight = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
+
+  const scaleX = windowWidth / baseWidth;
+  const scaleY = windowHeight / baseHeight;
+
+  // 잘림 없이 전체 화면에 핏되도록 축소/확대 비율 계산
+  const scale = Math.min(scaleX, scaleY);
+
+  wrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
+}
+
+window.addEventListener('resize', autoScale);
+window.addEventListener('orientationchange', autoScale);
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', autoScale);
+  window.visualViewport.addEventListener('scroll', autoScale);
+}
+document.addEventListener('DOMContentLoaded', autoScale);
+window.addEventListener('load', autoScale);
+autoScale();
 </script>
 </body>
 </html>
