@@ -160,6 +160,46 @@ body{font-family:'Noto Sans KR',sans-serif;background:#0f0800;color:var(--cream)
 }
 .btn-action-main.cancel:hover{background:var(--red);color:#fff;}
 
+/* 특수 카드 15초 타이머 제어 컨트롤러 */
+.timer-ctrl-group {
+  margin-top: 0.6rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--wood-dark);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.timer-ctrl-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #FF7070;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.timer-btn-row {
+  display: flex;
+  gap: 0.3rem;
+}
+.btn-timer-ctrl {
+  flex: 1;
+  padding: 0.35rem 0.2rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  border-radius: 6px;
+  border: 1px solid var(--wood-mid);
+  background: #0f0700;
+  color: var(--cream);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+.btn-timer-ctrl:hover { border-color: var(--gold); background: #251200; }
+.btn-timer-ctrl.btn-success { background: rgba(46, 204, 113, 0.18); border-color: #2ECC71; color: #2ECC71; }
+.btn-timer-ctrl.btn-success:hover { background: #2ECC71; color: #000; }
+.btn-timer-ctrl.btn-fail { background: rgba(192, 57, 43, 0.18); border-color: #E74C3C; color: #E74C3C; }
+.btn-timer-ctrl.btn-fail:hover { background: #E74C3C; color: #fff; }
+
 /* 검색창 */
 .code-input{
   flex:1;background:#0f0800;border:2px solid var(--wood-mid);border-radius:8px;
@@ -851,6 +891,14 @@ function renderTeamBoard(){
   });
 }
 
+function sendTimerAction(action) {
+  gameState.specialTimerAction = {
+    action: action,
+    ts: Date.now()
+  };
+  publishState();
+}
+
 // 카드 제어 센터 통합 UI 갱신 (미리보기 & 송출 대기)
 function updateControlCenterUI() {
   const box = document.getElementById('ctrl-center-box');
@@ -882,13 +930,21 @@ function updateControlCenterUI() {
   
   const cardInfo = document.createElement('div');
   cardInfo.className = 'ctrl-card-info';
+  cardInfo.style.flexDirection = 'column';
+  cardInfo.style.alignItems = 'stretch';
+
+  const cardTopRow = document.createElement('div');
+  cardTopRow.style.display = 'flex';
+  cardTopRow.style.gap = '0.7rem';
+  cardTopRow.style.alignItems = 'center';
+
   const mediaPreview = targetCard.image
     ? `<div class="cc-emoji" style="width: 50px; height: 70px; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 4px; flex-shrink: 0; border: 1px solid var(--wood-dark);">
          <img src="${targetCard.image}" class="card-img-fit" />
        </div>`
     : `<span class="cc-emoji">${targetCard.emoji}</span>`;
 
-  cardInfo.innerHTML = `
+  cardTopRow.innerHTML = `
     ${mediaPreview}
     <div class="cc-details">
       <div class="cc-header-row">
@@ -898,6 +954,7 @@ function updateControlCenterUI() {
       <div class="cc-desc">${targetCard.desc}</div>
     </div>
   `;
+  cardInfo.appendChild(cardTopRow);
   
   const actions = document.createElement('div');
   actions.className = 'cc-actions';
@@ -917,6 +974,26 @@ function updateControlCenterUI() {
   }
   
   cardInfo.appendChild(actions);
+
+  // 🔥 특수 카드이거나 현재 크게 송출 중인 카드가 특수 카드인 경우 타이머 제어 패널 생성
+  if (targetCard.type === 'special' || (isHighlighting && targetCard.type === 'special')) {
+    const timerGroup = document.createElement('div');
+    timerGroup.className = 'timer-ctrl-group';
+    timerGroup.innerHTML = `
+      <div class="timer-ctrl-title">
+        <span>⏱️ 특수 카드 15초 타이머 제어</span>
+        <span style="font-size:0.6rem; opacity:0.8; color:var(--gold-light);">[▶️ 시작/재개] 클릭 시 타이머 감소</span>
+      </div>
+      <div class="timer-btn-row">
+        <button class="btn-timer-ctrl" style="background:rgba(201,146,42,0.22); border-color:var(--gold); color:var(--gold-light);" onclick="sendTimerAction('resume')">▶️ 시작 / 재개</button>
+        <button class="btn-timer-ctrl" onclick="sendTimerAction('pause')">⏸️ 일시정지</button>
+        <button class="btn-timer-ctrl btn-success" onclick="sendTimerAction('success')">🎉 성공!</button>
+        <button class="btn-timer-ctrl btn-fail" onclick="sendTimerAction('fail')">💣 시간초과</button>
+      </div>
+    `;
+    cardInfo.appendChild(timerGroup);
+  }
+
   box.appendChild(cardInfo);
 }
 
