@@ -80,6 +80,45 @@ body::before {
   50% { opacity: .35 }
 }
 
+/* 전체화면 토글 버튼 */
+.btn-fullscreen {
+  position: absolute;
+  top: 1.5rem;
+  right: 6.8rem;
+  background: rgba(0, 0, 0, 0.65);
+  color: #E8B84B;
+  border: 2px solid #C9922A;
+  font-size: .78rem;
+  font-weight: bold;
+  letter-spacing: .06em;
+  padding: .3rem .75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: 'NeoDunggeunmo', sans-serif;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  transition: all 0.2s ease;
+}
+.btn-fullscreen:hover {
+  background: #C9922A;
+  color: #1A0F00;
+  box-shadow: 0 0 14px rgba(201, 146, 42, 0.85);
+  transform: translateY(-2px);
+}
+
+/* iOS iPhone Safari 등 Fullscreen API 미지원 모바일용 가상 전체화면 fallback */
+body.pseudo-fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 99999 !important;
+  overflow: hidden !important;
+}
+
 /* ── 전체 3컬럼 레이아웃 ── */
 .main-layout {
   width: 100%;
@@ -633,6 +672,7 @@ body::before {
 </head>
 <body>
 
+<button class="btn-fullscreen" id="btn-fullscreen" onclick="toggleFullscreen()">⛶ 전체화면</button>
 <div class="live-badge">● LIVE</div>
 <div class="conn-status" id="conn-status">🟡 원격 연결 대기 중...</div>
 
@@ -1536,6 +1576,58 @@ async function initBroadcast() {
   }
 }
 initBroadcast();
+
+// ── 전체화면 (Fullscreen) 토글 기능 (PC/Android/iOS 모바일 하이브리드 지원) ──
+function toggleFullscreen() {
+  const docEl = document.documentElement;
+  const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement || document.body.classList.contains('pseudo-fullscreen'));
+
+  if (!isFs) {
+    if (docEl.requestFullscreen) {
+      docEl.requestFullscreen().catch(() => enablePseudoFullscreen());
+    } else if (docEl.webkitRequestFullscreen) {
+      try { docEl.webkitRequestFullscreen(); } catch(e) { enablePseudoFullscreen(); }
+    } else if (docEl.msRequestFullscreen) {
+      try { docEl.msRequestFullscreen(); } catch(e) { enablePseudoFullscreen(); }
+    } else {
+      enablePseudoFullscreen();
+    }
+  } else {
+    if (document.body.classList.contains('pseudo-fullscreen')) {
+      disablePseudoFullscreen();
+    } else if (document.exitFullscreen) {
+      document.exitFullscreen().catch(() => disablePseudoFullscreen());
+    } else if (document.webkitExitFullscreen) {
+      try { document.webkitExitFullscreen(); } catch(e) { disablePseudoFullscreen(); }
+    } else if (document.msExitFullscreen) {
+      try { document.msExitFullscreen(); } catch(e) { disablePseudoFullscreen(); }
+    } else {
+      disablePseudoFullscreen();
+    }
+  }
+}
+
+function enablePseudoFullscreen() {
+  document.body.classList.add('pseudo-fullscreen');
+  window.scrollTo(0, 1);
+  updateFullscreenBtn();
+}
+
+function disablePseudoFullscreen() {
+  document.body.classList.remove('pseudo-fullscreen');
+  updateFullscreenBtn();
+}
+
+function updateFullscreenBtn() {
+  const btn = document.getElementById('btn-fullscreen');
+  if (!btn) return;
+  const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement || document.body.classList.contains('pseudo-fullscreen'));
+  btn.innerHTML = isFs ? '🗗 창모드' : '⛶ 전체화면';
+}
+
+document.addEventListener('fullscreenchange', updateFullscreenBtn);
+document.addEventListener('webkitfullscreenchange', updateFullscreenBtn);
+document.addEventListener('msfullscreenchange', updateFullscreenBtn);
 </script>
 </body>
 </html>
