@@ -34,7 +34,7 @@ try {
             $imagesDir = Join-Path (Get-Location) "images"
             $json = "[]"
             if (Test-Path $imagesDir) {
-                $files = Get-ChildItem -Path $imagesDir -Filter "common-*" | Where-Object { $_.Extension -match "jpg|jpeg|png" } | Select-Object -ExpandProperty Name
+                $files = Get-ChildItem -Path $imagesDir -Filter "common-*" | Where-Object { $_.Extension -match "jpg|jpeg|png" -and $_.Name -notmatch "back" } | Select-Object -ExpandProperty Name
                 if ($null -ne $files) {
                     if ($files -is [string]) {
                         $json = "[`"$files`"]"
