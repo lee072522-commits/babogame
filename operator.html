@@ -226,6 +226,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#0f0800;color:var(--cream)
 }
 .card-thumb:hover{border-color:var(--gold);background:#251508;}
 .card-thumb.selected{border-color:var(--gold);background:rgba(201,146,42,.15);}
+.card-thumb.example-card { border-color: #D35400; }
 .card-thumb.blue-team-card { border-color: #0A369D; }
 .card-thumb.orange-team-card { border-color: #e67e22; }
 .card-thumb.gray-team-card { border-color: #6c757d; }
@@ -651,7 +652,7 @@ function nextTurn() {
 function filterCards() {
   const query = document.getElementById('search-input').value.trim().toLowerCase();
   const thumbs = document.querySelectorAll('.card-thumb');
-  const visibleCount = { common: 0, team: 0, special: 0 };
+  const visibleCount = { example: 0, common: 0, team: 0, special: 0 };
   
   thumbs.forEach(thumb => {
     const code = thumb.getAttribute('data-code');
@@ -1029,6 +1030,7 @@ function buildGrid(){
   grid.innerHTML = '';
   
   const groups = {
+    example: [],
     common: [],
     team_orange: [],
     team_blue: [],
@@ -1045,12 +1047,12 @@ function buildGrid(){
       } else if (card.color === 'gray') {
         groups.team_gray.push({code, ...card});
       }
-    } else {
+    } else if (groups[card.type]) {
       groups[card.type].push({code, ...card});
     }
   });
 
-  const types = ['common', 'team_orange', 'team_blue', 'team_gray', 'special'];
+  const types = ['example', 'common', 'team_orange', 'team_blue', 'team_gray', 'special'];
 
   types.forEach(type => {
     const meta = TYPE_META[type];
@@ -1069,6 +1071,7 @@ function buildGrid(){
       el.id = 'thumb-' + card.code;
       el.setAttribute('data-code', card.code);
       
+      if (type === 'example') el.classList.add('example-card');
       if (type === 'team_orange') el.classList.add('orange-team-card');
       if (type === 'team_blue') el.classList.add('blue-team-card');
       if (type === 'team_gray') el.classList.add('gray-team-card');

@@ -123,12 +123,53 @@ async function loadDynamicCards() {
       image: `images/${file}`
     };
   });
+
+  // 4. 예시 카드 로딩 (4장)
+  let filesExample = [];
+  try {
+    const resExample = await fetch('/api/example-images');
+    if (resExample.ok) {
+      filesExample = await resExample.json();
+    } else {
+      filesExample = getFallbackImages('example', 4);
+    }
+  } catch (err) {
+    filesExample = getFallbackImages('example', 4);
+  }
+
+  const EXAMPLE_DESCS = {
+    1: { emoji: '🤠', name: '예시: 유희왕 최고!', desc: '모든 팀은 카드를 내려놓을 때 "유희왕 최고"를 외쳐야 합니다!' },
+    2: { emoji: '🎵', name: '예시: 바보 노래 부르기', desc: '카드를 내려놓을 때마다 "띠리리리리띠리~" (바보노래부르기)를 외쳐야 합니다.' },
+    3: { emoji: '👉', name: '예시: 동작그만!', desc: '다른팀이 카드를 들고 있을때 "동작그만!"을 외치고, 손으로 총모양을 만들어야 합니다.' },
+    4: { emoji: '📜', name: '예시: 다음 학기도 유희왕', desc: '카드를 뽑기 전 "다음 학기도 유희왕 하겠습니다"를 외쳐야 합니다.' },
+  };
+
+  filesExample.forEach((file, index) => {
+    const num = index + 1;
+    const id = `E-${String(num).padStart(3, '0')}`;
+    const info = EXAMPLE_DESCS[num] || {
+      emoji: '💡',
+      name: `예시 미션 ${String(num).padStart(2, '0')}`,
+      desc: '카드를 열어 이미지에 지정된 예시 미션 행동을 수행하세요.'
+    };
+
+    CARD_DB[id] = {
+      code: id,
+      searchKey: `example-${num} example${num} 예시-${num} 예시${num}`,
+      emoji: info.emoji,
+      name: info.name,
+      desc: info.desc,
+      type: 'example',
+      image: `images/${file}`
+    };
+  });
 }
 
 /**
  * 카드 종류별 스타일 메타데이터
  */
 const TYPE_META = {
+  example: { label: '예시카드', color: '#D35400', bg: '#FDEBD0' },
   common: { label: '공통카드', color: '#155724', bg: '#D4EDDA' },
   team: { label: '팀별카드', color: '#721C24', bg: '#F8D7DA' },
   team_orange: { label: '주황 팀별카드', color: '#A04000', bg: '#FDEBD0' },
