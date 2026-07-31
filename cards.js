@@ -63,6 +63,8 @@ async function loadDynamicCards() {
       cardColor = 'gray';
     }
     CARD_DB[id] = {
+      code: id,
+      searchKey: `team-${num} team${num} ${num}`,
       emoji: '🃏',
       name: `팀 미션 ${String(num).padStart(2, '0')}`,
       desc: `카드를 열어 이미지에 지정된 팀별 미션 행동을 수행하세요.`,
@@ -116,6 +118,8 @@ async function loadDynamicCards() {
     const id = `S-${String(index + 1).padStart(3, '0')}`;
     const cardNum = 63 + filesCommon.length + index + 1;
     CARD_DB[id] = {
+      code: id,
+      searchKey: `team-${cardNum} team${cardNum} special-${index + 1} special${index + 1} ${cardNum}`,
       emoji: '🌟',
       name: `특수 미션 ${String(cardNum).padStart(2, '0')}`,
       desc: `카드를 열어 이미지에 지정된 특수 미션 행동을 수행하세요.`,
